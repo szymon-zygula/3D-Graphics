@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace _3D_Graphics {
     public interface IFragmentShader {
-        Vec3 Shade(Triangle triangle);
+        Vec3 Shade(Triangle triangle, Vec3 bary);
     }
 
-    public class SolidFragmentShader : IFragmentShader {
+    public class FlatFragmentShader : IFragmentShader {
         readonly Vec3 Color;
 
-        public SolidFragmentShader(Vec3 color) {
+        public FlatFragmentShader(Vec3 color) {
             Color = color;
         }
 
-        public Vec3 Shade(Triangle triangle) {
+        public Vec3 Shade(Triangle triangle, Vec3 _bary) {
             return Color;
         }
     }

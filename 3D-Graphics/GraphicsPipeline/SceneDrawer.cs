@@ -3,144 +3,71 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace _3D_Graphics {
     public abstract class SceneDrawer {
         public static void DrawOnto(Scene scene, Texture texture) {
             for (int i = 0; i < scene.Entities.Length; ++i) {
                 for (int j = 0; j < scene.Entities[i].Triangles.Length; ++j) {
-                    DrawTriangle(scene.Entities[i].Triangles[j], texture);
+                    ScanLineFiller.FillTriangle(texture, scene.Entities[i].Triangles[j]);
                 }
             }
-        }
-
-        private static void DrawTriangle(Triangle triangle, Texture texture) {
-            Vec2[] points = new Vec2[3];
-            points[0] = new Vec2(triangle.Vertices[0]);
-            points[1] = new Vec2(triangle.Vertices[1]);
-            points[2] = new Vec2(triangle.Vertices[2]);
-            ScanLineFiller.FillTriangle(texture, points);
         }
     }
 
     public static class ScanLineFiller {
-        private class ActiveEdge {
-            public int From;
-            public int To;
-            public float X;
-            public float Diff;
+        private static void DrawScanline(Texture plane, int xmin, int xmax, int y, Triangle triangle) {
+            for (int x = xmin; x <= xmax; ++x) {
+                plane.Pixels[x, y] = triangle.ShadeAt(new Vec3(1f, 1f, 1f));
+            }
         }
 
-        private static float Differential(Vec2[] points, int i, int j) {
-            if (points[i].Y == points[j].Y) {
+        private static float Differential(Vector<float> v, Vector<float> u) {
+            if (v[1] == u[1]) {
                 return float.NaN;
             }
 
             return
-                (float)(points[j].X - points[i].X) /
-                (float)(points[j].Y - points[i].Y);
+               (u[0] - v[0]) /
+               (u[1] - v[1]);
         }
 
-        private static Vec3 ColorDifferential(Vec2[] points, UInt32[] colors, int i, int j) {
-            return
-                (new Vec3(colors[j]) - new Vec3(colors[i])) /
-                (float)(points[j].Y - points[i].Y);
-        }
-
-        private static void AddToAET(List<ActiveEdge> aet, ActiveEdge ae) {
-            if (!float.IsNaN(ae.Diff)) {
-                aet.Add(ae);
+        public static void FillTriangle(Texture plane, Triangle triangle) {
+            if (triangle.Vertices[0][1] == triangle.Vertices[1][1] && triangle.Vertices[0][1] == triangle.Vertices[2][1]) {
+                return;
             }
-        }
 
-        private static void AddTopPointToAET(Vec2[] points, int point, List<ActiveEdge> aet) {
-            float x = points[point].X;
-            int nextPoint = (point + 1) % points.Length;
-            int prevPoint = point == 0 ? points.Length - 1 : point - 1;
+            triangle.SortVerticesByY();
 
-            AddToAET(aet, new ActiveEdge() {
-                X = x,
-                Diff = Differential(points, point, nextPoint),
-                From = point,
-                To = nextPoint,
-            });
+            int height = (int)Math.Round(triangle.Vertices[2][1] - triangle.Vertices[0][1]);
+            int ymin = (int)Math.Round(triangle.Vertices[0][1]);
+            int ymax = ymin + height;
 
-            AddToAET(aet, new ActiveEdge() {
-                X = x,
-                Diff = Differential(points, point, prevPoint),
-                From = point,
-                To = prevPoint,
-            });
-        }
+            float diff1 = Differential(triangle.Vertices[0], triangle.Vertices[2]);
+            float diff2 = Differential(triangle.Vertices[0], triangle.Vertices[1]);
+            float xmin = triangle.Vertices[0][0];
+            float xmax = triangle.Vertices[0][0];
 
-        private static (List<ActiveEdge>, int) InitAET(Vec2[] points, int[] perm) {
-            List<ActiveEdge> aet = new List<ActiveEdge>();
+            if(triangle.Vertices[0][1] == triangle.Vertices[1][1]) {
+                xmax = triangle.Vertices[1][0];
+            }
 
-            for (int i = 0; i < points.Length; ++i) {
-                if (points[perm[i]].Y != points[perm[0]].Y) {
-                    return (aet, i);
+            for (int y = ymin; y < ymax; y++) { 
+                if(y == Math.Round(triangle.Vertices[1][1])) {
+                    diff2 = Differential(triangle.Vertices[1], triangle.Vertices[2]);
                 }
 
-                AddTopPointToAET(points, perm[i], aet);
-            }
-
-            return (aet, points.Length);
-        }
-
-        private static void HandleNewEdge(Vec2[] points, List<ActiveEdge> aet, int i, int j) {
-            if (points[j].Y >= points[i].Y) {
-                AddToAET(aet, new ActiveEdge() {
-                    X = points[i].X,
-                    Diff = Differential(points, i, j),
-                    From = i,
-                    To = j,
-                });
-            }
-            else {
-                aet.RemoveAll((ActiveEdge ae) => ae.To == i && ae.From == j);
-            }
-        }
-
-        private static void DrawScanline(Texture plane, List<ActiveEdge> aet, int y) {
-            for (int i = 0; i < aet.Count - 1; i += 2) {
-                ActiveEdge ae1 = aet[i];
-                ActiveEdge ae2 = aet[i + 1];
-
-                for (int x = (int)Math.Round(ae1.X); x <= (int)Math.Round(ae2.X); ++x) {
-                    plane.Pixels[x, y] = new Vec3(0.0f, 0.0f, 1.0f);
+                if (xmin > xmax) {
+                    DrawScanline(plane, (int)xmax, (int)xmin, y, triangle);
+                }
+                else {
+                    DrawScanline(plane, (int)xmin, (int)xmax, y, triangle);
                 }
 
-                ae1.X += ae1.Diff;
-                ae2.X += ae2.Diff;
-            }
-        }
-
-        private static void HandleNewPoints(Vec2[] points, int[] perm, ref int nextToProcess, List<ActiveEdge> aet, int y) {
-            while ((int)Math.Round(points[perm[nextToProcess]].Y) == y - 1) {
-                int nextPoint = (perm[nextToProcess] + 1) % points.Length;
-                int prevPoint = perm[nextToProcess] == 0 ? points.Length - 1 : perm[nextToProcess] - 1;
-
-                HandleNewEdge(points, aet, perm[nextToProcess], prevPoint);
-                HandleNewEdge(points, aet, perm[nextToProcess], nextPoint);
-
-                nextToProcess += 1;
-            }
-        }
-
-        public static void FillTriangle(Texture plane, Vec2[] points) {
-            int[] perm = Enumerable.Range(0, points.Length).ToArray();
-            Array.Sort(perm, (int a, int b) => points[a].Y.CompareTo(points[b].Y));
-            (List<ActiveEdge> aet, int nextToProcess) = InitAET(points, perm);
-
-            int ymin = (int)Math.Round(points[perm[0]].Y);
-            int ymax = (int)Math.Round(points[perm[points.Length - 1]].Y);
-
-            for (int y = ymin + 1; y <= ymax; ++y) {
-                HandleNewPoints(points, perm, ref nextToProcess, aet, y);
-
-                aet.Sort((ActiveEdge a, ActiveEdge b) => a.X.CompareTo(b.X));
-                DrawScanline(plane, aet, y);
-            }
+                xmin += diff1;
+                xmax += diff2;
+            } 
         }
     }
 }

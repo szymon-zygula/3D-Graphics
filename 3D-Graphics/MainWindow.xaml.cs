@@ -22,6 +22,7 @@ namespace _3D_Graphics {
         int frames;
         Stopwatch sw;
         Scene MainScene;
+        Vector<float> MovedVertex;
 
         public MainWindow() {
             InitializeComponent();
@@ -33,9 +34,11 @@ namespace _3D_Graphics {
             MainScene = new Scene();
             MainScene.Entities = new Entity[1];
             MainScene.Entities[0] = new Entity(1);
-            MainScene.Entities[0].Triangles[0] = new Triangle(new SolidFragmentShader(new Vec3(1.0f, 1.0f, 1.0f)));
-            MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new float[] { 10f, 10f });
-            MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new float[] { 500f, 10f });
+            MainScene.Entities[0].Triangles[0] = new Triangle(new FlatFragmentShader(new Vec3(0.5f, 1.0f, 1.0f)));
+            MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new float[] { 450f, 350f });
+            MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new float[] { 650f, 350f });
+            MovedVertex = CreateVector.DenseOfArray(new float[] { 0f, 0f });
+            MainScene.Entities[0].Triangles[0].Vertices[2] = MovedVertex;
 
             a = 0.0;
             frames = 0;
@@ -47,11 +50,9 @@ namespace _3D_Graphics {
         }
 
         private void RenderFrame(object sender, EventArgs e) {
-            a += 0.01;
-            MainScene.Entities[0].Triangles[0].Vertices[2] = CreateVector.DenseOfArray(
-                new float[] { (float)((DrawingPlane.Width - 20) * (Math.Cos(a) / 2 + 0.5f)),
-                    (float)((DrawingPlane.Height - 20) * (Math.Sin(a) / 2 + 0.5))
-                });
+            a += 0.04;
+            MovedVertex[0] = (float)((DrawingPlane.Width - 20) * (Math.Cos(a) / 2 + 0.5f) + 10);
+            MovedVertex[1] = (float)((DrawingPlane.Height - 20) * (Math.Sin(a) / 2 + 0.5) + 10);
 
             DrawingPlane.Clean(new Vec3(0.5f, 0.75f, 0.25f));
             SceneDrawer.DrawOnto(MainScene, DrawingPlane);
