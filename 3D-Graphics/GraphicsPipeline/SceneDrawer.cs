@@ -70,10 +70,10 @@ namespace _3D_Graphics {
                 }
 
                 if (xmin > xmax) {
-                    DrawScanline(plane, (int)xmax, (int)xmin, y, triangle);
+                    DrawScanline(plane, (int)Math.Round(xmax), (int)Math.Round(xmin), y, triangle);
                 }
                 else {
-                    DrawScanline(plane, (int)xmin, (int)xmax, y, triangle);
+                    DrawScanline(plane, (int)Math.Round(xmin), (int)Math.Round(xmax), y, triangle);
                 }
 
                 xmin += diff1;

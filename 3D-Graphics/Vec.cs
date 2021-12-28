@@ -62,9 +62,9 @@ namespace _3D_Graphics {
 
         public UInt32 ToColor() {
             UInt32 a = 0xFF000000;
-            UInt32 r = (UInt32)(Math.Min(Math.Round(X * 255.0), 255.0)) << 16;
-            UInt32 g = (UInt32)(Math.Min(Math.Round(Y * 255.0), 255.0)) << 8;
-            UInt32 b = (UInt32)(Math.Min(Math.Round(Z * 255.0), 255.0));
+            UInt32 r = (UInt32)(Math.Max(0.0f, Math.Min(Math.Round(X * 255.0f), 255.0f))) << 16;
+            UInt32 g = (UInt32)(Math.Max(0.0f, Math.Min(Math.Round(Y * 255.0f), 255.0f))) << 8;
+            UInt32 b = (UInt32)(Math.Max(0.0f, Math.Min(Math.Round(Z * 255.0f), 255.0f)));
 
             return a | r | g | b;
         }
