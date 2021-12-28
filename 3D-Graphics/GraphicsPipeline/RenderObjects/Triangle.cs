@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using System;
 
 namespace _3D_Graphics {
     public struct Triangle {
@@ -14,16 +15,23 @@ namespace _3D_Graphics {
             return FragmentShader.Shade(this, bary);
         }
 
-        public void SortVerticesByY() {
-            if (Vertices[0][1] > Vertices[1][1]) {
-                (Vertices[0], Vertices[1]) = (Vertices[1], Vertices[0]);
+        public Vector<float>[] VerticesSortedByY() {
+            Vector<float>[] vertices = new Vector<float>[3];
+            Array.Copy(Vertices, vertices, 3);
+
+            if (vertices[0][1] > vertices[1][1]) {
+                (vertices[0], vertices[1]) = (vertices[1], vertices[0]);
             }
-            if (Vertices[0][1] > Vertices[2][1]) {
-                (Vertices[0], Vertices[2]) = (Vertices[2], Vertices[0]);
+
+            if (vertices[0][1] > vertices[2][1]) {
+                (vertices[0], vertices[2]) = (vertices[2], vertices[0]);
             }
-            if (Vertices[1][1] > Vertices[2][1]) {
-                (Vertices[1], Vertices[2]) = (Vertices[2], Vertices[1]);
+
+            if (vertices[1][1] > vertices[2][1]) {
+                (vertices[1], vertices[2]) = (vertices[2], vertices[1]);
             }
+
+            return vertices;
         }
     }
 }

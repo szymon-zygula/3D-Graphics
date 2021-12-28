@@ -49,24 +49,24 @@ namespace _3D_Graphics {
                 return;
             }
 
-            triangle.SortVerticesByY();
+            Vector<float>[] vertices = triangle.VerticesSortedByY();
 
-            int height = (int)Math.Round(triangle.Vertices[2][1] - triangle.Vertices[0][1]);
-            int ymin = (int)Math.Round(triangle.Vertices[0][1]);
+            int height = (int)Math.Round(vertices[2][1] - vertices[0][1]);
+            int ymin = (int)Math.Round(vertices[0][1]);
             int ymax = ymin + height;
 
-            float diff1 = Differential(triangle.Vertices[0], triangle.Vertices[2]);
-            float diff2 = Differential(triangle.Vertices[0], triangle.Vertices[1]);
-            float xmin = triangle.Vertices[0][0];
-            float xmax = triangle.Vertices[0][0];
+            float diff1 = Differential(vertices[0], vertices[2]);
+            float diff2 = Differential(vertices[0], vertices[1]);
+            float xmin = vertices[0][0];
+            float xmax = vertices[0][0];
 
-            if(triangle.Vertices[0][1] == triangle.Vertices[1][1]) {
-                xmax = triangle.Vertices[1][0];
+            if(vertices[0][1] == vertices[1][1]) {
+                xmax = vertices[1][0];
             }
 
             for (int y = ymin; y < ymax; y++) { 
-                if(y == Math.Round(triangle.Vertices[1][1])) {
-                    diff2 = Differential(triangle.Vertices[1], triangle.Vertices[2]);
+                if(y == Math.Round(vertices[1][1])) {
+                    diff2 = Differential(vertices[1], vertices[2]);
                 }
 
                 if (xmin > xmax) {
