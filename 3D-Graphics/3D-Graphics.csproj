@@ -65,8 +65,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ArrayUtils.cs" />
+    <Compile Include="RenderObjects\Entity.cs" />
+    <Compile Include="RenderObjects\Triangle.cs" />
+    <Compile Include="Shaders\FragmentShader.cs" />
+    <Compile Include="GraphicsPipeline\Projector.cs" />
+    <Compile Include="RenderObjects\Scene.cs" />
+    <Compile Include="GraphicsPipeline\SceneDrawer.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="Vec.cs" />
+    <Compile Include="Shaders\VertexShader.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
