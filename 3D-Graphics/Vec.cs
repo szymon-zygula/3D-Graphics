@@ -98,6 +98,14 @@ namespace _3D_Graphics {
             return (to - from).Normalize();
         }
 
+        public static Vec3 CrossProduct(Vec3 u, Vec3 v) {
+            return new Vec3(
+                u.Y * v.Z - u.Z * v.Y,
+                u.Z * v.X - u.X * v.Z,
+                u.X * v.Y - u.Y * v.X
+            );
+        }
+
         public static Vec3 operator +(Vec3 u) => u;
         public static Vec3 operator -(Vec3 u) => new Vec3(-u.X, -u.Y, -u.Z);
         public static Vec3 operator +(Vec3 u, Vec3 v) => new Vec3(u.X + v.X, u.Y + v.Y, u.Z + v.Z);

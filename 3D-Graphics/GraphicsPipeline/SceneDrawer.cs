@@ -10,16 +10,14 @@ namespace _3D_Graphics {
         public static void DrawOnto(Scene scene, Texture texture) {
             for (int i = 0; i < scene.Entities.Length; ++i) {
                 for (int j = 0; j < scene.Entities[i].Triangles.Length; ++j) {
-                    ScanLineFiller.FillTriangle(texture, scene.Entities[i].Triangles[j]);
+                    FillTriangle(texture, scene.Entities[i].Triangles[j]);
                 }
             }
         }
-    }
 
-    public static class ScanLineFiller {
         private static void DrawScanline(Texture plane, int xmin, int xmax, int y, Triangle triangle) {
             for (int x = xmin; x <= xmax; ++x) {
-                plane.Pixels[x, y] = triangle.ShadeAt(new Vec3(1f, 1f, 1f));
+                plane.Pixels[x, y] = triangle.ShadeAt(Barycentric(triangle, x, y));
             }
         }
 
@@ -31,6 +29,19 @@ namespace _3D_Graphics {
             return
                (u[0] - v[0]) /
                (u[1] - v[1]);
+        }
+
+        private static Vec3 Barycentric(Triangle triangle, int x, int y) {
+            Vec3 cross = Vec3.CrossProduct(
+                new Vec3(triangle.Vertices[2][0] - triangle.Vertices[0][0], triangle.Vertices[1][0] - triangle.Vertices[0][0], triangle.Vertices[0][0] - x),
+                new Vec3(triangle.Vertices[2][1] - triangle.Vertices[0][1], triangle.Vertices[1][1] - triangle.Vertices[0][1], triangle.Vertices[0][1] - y)
+            );
+
+            if (Math.Abs(cross.Y) < 1) {
+                return new Vec3(-1f, 1f, 1f);
+            }
+
+            return new Vec3(1f - (cross.X + cross.Y) / cross.Z, cross.Y / cross.Z, cross.X / cross.Z);
         }
 
         public static void FillTriangle(Texture plane, Triangle triangle) {

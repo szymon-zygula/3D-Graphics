@@ -34,7 +34,13 @@ namespace _3D_Graphics {
             MainScene = new Scene();
             MainScene.Entities = new Entity[1];
             MainScene.Entities[0] = new Entity(1);
-            MainScene.Entities[0].Triangles[0] = new Triangle(new FlatFragmentShader(new Vec3(0.5f, 1.0f, 1.0f)));
+            MainScene.Entities[0].Triangles[0] = new Triangle(
+                new InterpolationFragmentShader(
+                    new Vec3(0.0f, 0.0f, 1.0f),
+                    new Vec3(1.0f, 0.0f, 0.0f),
+                    new Vec3(0.0f, 1.0f, 0.0f)
+                )
+            );
             MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new float[] { 450f, 350f });
             MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new float[] { 650f, 350f });
             MovedVertex = CreateVector.DenseOfArray(new float[] { 0f, 0f });
