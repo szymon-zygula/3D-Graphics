@@ -19,7 +19,7 @@ namespace _3D_Graphics {
             points[0] = new Vec2(triangle.Vertices[0]);
             points[1] = new Vec2(triangle.Vertices[1]);
             points[2] = new Vec2(triangle.Vertices[2]);
-            ScanLineFiller.FillSolidColor(texture, points, 0xFFFF0000);
+            ScanLineFiller.FillTriangle(texture, points, fragmentShader);
         }
     }
 
@@ -29,8 +29,6 @@ namespace _3D_Graphics {
             public int To;
             public float X;
             public float Diff;
-            public Vec3 Color;
-            public Vec3 ColorDiff;
         }
 
         private static float Differential(Vec2[] points, int i, int j) {
@@ -43,19 +41,13 @@ namespace _3D_Graphics {
                 (float)(points[j].Y - points[i].Y);
         }
 
-        private static Vec3 ColorDifferential(Vec2[] points, UInt32[] colors, int i, int j) {
-            return
-                (new Vec3(colors[j]) - new Vec3(colors[i])) /
-                (float)(points[j].Y - points[i].Y);
-        }
-
         private static void AddToAET(List<ActiveEdge> aet, ActiveEdge ae) {
             if (!float.IsNaN(ae.Diff)) {
                 aet.Add(ae);
             }
         }
 
-        private static void AddTopPointToAET(Vec2[] points, UInt32[] colors, int point, List<ActiveEdge> aet) {
+        private static void AddTopPointToAET(Vec2[] points, int point, List<ActiveEdge> aet) {
             float x = points[point].X;
             int nextPoint = (point + 1) % points.Length;
             int prevPoint = point == 0 ? points.Length - 1 : point - 1;
@@ -65,8 +57,6 @@ namespace _3D_Graphics {
                 Diff = Differential(points, point, nextPoint),
                 From = point,
                 To = nextPoint,
-                Color = new Vec3(colors[point]),
-                ColorDiff = ColorDifferential(points, colors, point, nextPoint)
             });
 
             AddToAET(aet, new ActiveEdge() {
@@ -74,12 +64,10 @@ namespace _3D_Graphics {
                 Diff = Differential(points, point, prevPoint),
                 From = point,
                 To = prevPoint,
-                Color = new Vec3(colors[point]),
-                ColorDiff = ColorDifferential(points, colors, point, prevPoint)
             });
         }
 
-        private static (List<ActiveEdge>, int) InitAET(Vec2[] points, UInt32[] colors, int[] perm) {
+        private static (List<ActiveEdge>, int) InitAET(Vec2[] points, int[] perm) {
             List<ActiveEdge> aet = new List<ActiveEdge>();
 
             for (int i = 0; i < points.Length; ++i) {
@@ -87,21 +75,19 @@ namespace _3D_Graphics {
                     return (aet, i);
                 }
 
-                AddTopPointToAET(points, colors, perm[i], aet);
+                AddTopPointToAET(points, perm[i], aet);
             }
 
             return (aet, points.Length);
         }
 
-        private static void HandleNewEdge(Vec2[] points, UInt32[] colors, List<ActiveEdge> aet, int i, int j) {
+        private static void HandleNewEdge(Vec2[] points, List<ActiveEdge> aet, int i, int j) {
             if (points[j].Y >= points[i].Y) {
                 AddToAET(aet, new ActiveEdge() {
                     X = points[i].X,
                     Diff = Differential(points, i, j),
                     From = i,
                     To = j,
-                    Color = new Vec3(colors[i]),
-                    ColorDiff = ColorDifferential(points, colors, i, j)
                 });
             }
             else {
@@ -109,55 +95,45 @@ namespace _3D_Graphics {
             }
         }
 
-        private static void DrawScanline(Texture plane, List<ActiveEdge> aet, int y) {
+        private static void DrawScanline(Texture plane, List<ActiveEdge> aet, int y, IFragmentShader fragmentShader) {
             for (int i = 0; i < aet.Count - 1; i += 2) {
                 ActiveEdge ae1 = aet[i];
                 ActiveEdge ae2 = aet[i + 1];
-                Vec3 colorDiff = (ae2.Color - ae1.Color) / (ae2.X - ae1.X);
-                Vec3 color = ae1.Color;
 
                 for (int x = (int)Math.Round(ae1.X); x <= (int)Math.Round(ae2.X); ++x) {
-                    plane.Pixels[x, y] = color;
-                    color += colorDiff;
+                    plane.Pixels[x, y] = fragmentShader.Shade(new Vec2(0.0f, 0.0f), new Vec2(0.0f, 0.0f), new Vec2(0.0f, 0.0f));
                 }
 
                 ae1.X += ae1.Diff;
-                ae1.Color += ae1.ColorDiff;
                 ae2.X += ae2.Diff;
-                ae2.Color += ae2.ColorDiff;
             }
         }
 
-        private static void HandleNewPoints(Vec2[] points, UInt32[] colors, int[] perm, ref int nextToProcess, List<ActiveEdge> aet, int y) {
+        private static void HandleNewPoints(Vec2[] points, int[] perm, ref int nextToProcess, List<ActiveEdge> aet, int y) {
             while ((int)Math.Round(points[perm[nextToProcess]].Y) == y - 1) {
                 int nextPoint = (perm[nextToProcess] + 1) % points.Length;
                 int prevPoint = perm[nextToProcess] == 0 ? points.Length - 1 : perm[nextToProcess] - 1;
 
-                HandleNewEdge(points, colors, aet, perm[nextToProcess], prevPoint);
-                HandleNewEdge(points, colors, aet, perm[nextToProcess], nextPoint);
+                HandleNewEdge(points, aet, perm[nextToProcess], prevPoint);
+                HandleNewEdge(points, aet, perm[nextToProcess], nextPoint);
 
                 nextToProcess += 1;
             }
         }
 
-        public static void FillSolidColor(Texture plane, Vec2[] points, UInt32 color) {
-            UInt32[] colors = Enumerable.Repeat<UInt32>(color, points.Length).ToArray();
-            FillVertexInterpolation(plane, points, colors);
-        }
-
-        public static void FillVertexInterpolation(Texture plane, Vec2[] points, UInt32[] colors) {
+        public static void FillTriangle(Texture plane, Vec2[] points, IFragmentShader fragmentShader) {
             int[] perm = Enumerable.Range(0, points.Length).ToArray();
             Array.Sort(perm, (int a, int b) => points[a].Y.CompareTo(points[b].Y));
-            (List<ActiveEdge> aet, int nextToProcess) = InitAET(points, colors, perm);
+            (List<ActiveEdge> aet, int nextToProcess) = InitAET(points, perm);
 
             int ymin = (int)Math.Round(points[perm[0]].Y);
             int ymax = (int)Math.Round(points[perm[points.Length - 1]].Y);
 
             for (int y = ymin + 1; y <= ymax; ++y) {
-                HandleNewPoints(points, colors, perm, ref nextToProcess, aet, y);
+                HandleNewPoints(points, perm, ref nextToProcess, aet, y);
 
                 aet.Sort((ActiveEdge a, ActiveEdge b) => a.X.CompareTo(b.X));
-                DrawScanline(plane, aet, y);
+                DrawScanline(plane, aet, y, fragmentShader);
             }
         }
     }
