@@ -33,7 +33,7 @@ namespace _3D_Graphics {
         }
 
         public Vec3 Shade(Triangle triangle, Vec3 bary) {
-            return (Color1 * bary.X + Color2 * bary.Y + Color3 * bary.Z);
+            return Color1 * bary.X + Color2 * bary.Y + Color3 * bary.Z;
         }
     }
 }

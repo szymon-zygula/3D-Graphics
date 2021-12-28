@@ -22,7 +22,6 @@ namespace _3D_Graphics {
         int frames;
         Stopwatch sw;
         Scene MainScene;
-        Vector<float> MovedVertex;
 
         public MainWindow() {
             InitializeComponent();
@@ -41,10 +40,9 @@ namespace _3D_Graphics {
                     new Vec3(0.0f, 1.0f, 0.0f)
                 )
             );
-            MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new float[] { 450f, 350f });
-            MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new float[] { 650f, 350f });
-            MovedVertex = CreateVector.DenseOfArray(new float[] { 0f, 0f });
-            MainScene.Entities[0].Triangles[0].Vertices[2] = MovedVertex;
+            MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new double[] { -0.25f, 0.0f, 0.5f, 1.0f });
+            MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new double[] { 0.25f, 0.0f, 0.5f, 1.0f });
+            MainScene.Entities[0].Triangles[0].Vertices[2] = CreateVector.DenseOfArray(new double[] { 0.0f, 0.5f, 0.5f, 1.0f });
 
             a = 0.0;
             frames = 0;
@@ -57,11 +55,12 @@ namespace _3D_Graphics {
 
         private void RenderFrame(object sender, EventArgs e) {
             a += 0.04;
-            MovedVertex[0] = (float)((DrawingPlane.Width - 20) * (Math.Cos(a) / 2 + 0.5f) + 10);
-            MovedVertex[1] = (float)((DrawingPlane.Height - 20) * (Math.Sin(a) / 2 + 0.5) + 10);
+            MainScene.Entities[0].Triangles[0].Vertices[2][0] = (double)Math.Cos(a);
+            MainScene.Entities[0].Triangles[0].Vertices[2][1] = (double)Math.Sin(a);
+            MainScene.Entities[0].Triangles[0].Vertices[2][2] = ((double)Math.Sin(2 * a) + 1.5f) / 2.0f;
 
             DrawingPlane.Clean(new Vec3(0.5f, 0.75f, 0.25f));
-            SceneDrawer.DrawOnto(MainScene, DrawingPlane);
+            SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(1.5f, 0.1f, 0.90f, DrawingPlane.Width, DrawingPlane.Height));
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
             frames += 1;

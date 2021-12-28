@@ -2,12 +2,12 @@
 using System;
 
 namespace _3D_Graphics {
-    public struct Triangle {
-        public Vector<float>[] Vertices;
+    public class Triangle {
+        public Vector<double>[] Vertices;
         public IFragmentShader FragmentShader;
 
         public Triangle(IFragmentShader fragmentShader) {
-            Vertices = new Vector<float>[3];
+            Vertices = new Vector<double>[3];
             FragmentShader = fragmentShader;
         }
 
@@ -15,8 +15,8 @@ namespace _3D_Graphics {
             return FragmentShader.Shade(this, bary);
         }
 
-        public Vector<float>[] VerticesSortedByY() {
-            Vector<float>[] vertices = new Vector<float>[3];
+        public Vector<double>[] VerticesSortedByY() {
+            Vector<double>[] vertices = new Vector<double>[3];
             Array.Copy(Vertices, vertices, 3);
 
             if (vertices[0][1] > vertices[1][1]) {

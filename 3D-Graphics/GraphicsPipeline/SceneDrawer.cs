@@ -7,23 +7,29 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace _3D_Graphics {
     public abstract class SceneDrawer {
-        public static void DrawOnto(Scene scene, Texture texture) {
+        public static void DrawOnto(Scene scene, Texture texture, IVertexShader vertexShader) {
             for (int i = 0; i < scene.Entities.Length; ++i) {
                 for (int j = 0; j < scene.Entities[i].Triangles.Length; ++j) {
-                    FillTriangle(texture, scene.Entities[i].Triangles[j]);
+                    FillTriangle(texture, vertexShader.Shade(scene.Entities[i].Triangles[j]));
                 }
             }
         }
 
         private static void DrawScanline(Texture plane, int xmin, int xmax, int y, Triangle triangle) {
+            if (y < 0 || y >= plane.Height) {
+                return;
+            }
+
+            xmin = Math.Max(xmin, 0);
+            xmax = Math.Min(xmax, plane.Width - 1);
             for (int x = xmin; x <= xmax; ++x) {
                 plane.Pixels[x, y] = triangle.ShadeAt(Barycentric(triangle, x, y));
             }
         }
 
-        private static float Differential(Vector<float> v, Vector<float> u) {
+        private static double Differential(Vector<double> v, Vector<double> u) {
             if (v[1] == u[1]) {
-                return float.NaN;
+                return double.NaN;
             }
 
             return
@@ -49,16 +55,16 @@ namespace _3D_Graphics {
                 return;
             }
 
-            Vector<float>[] vertices = triangle.VerticesSortedByY();
+            Vector<double>[] vertices = triangle.VerticesSortedByY();
 
             int height = (int)Math.Round(vertices[2][1] - vertices[0][1]);
             int ymin = (int)Math.Round(vertices[0][1]);
             int ymax = ymin + height;
 
-            float diff1 = Differential(vertices[0], vertices[2]);
-            float diff2 = Differential(vertices[0], vertices[1]);
-            float xmin = vertices[0][0];
-            float xmax = vertices[0][0];
+            double diff1 = Differential(vertices[0], vertices[2]);
+            double diff2 = Differential(vertices[0], vertices[1]);
+            double xmin = vertices[0][0];
+            double xmax = vertices[0][0];
 
             if(vertices[0][1] == vertices[1][1]) {
                 xmax = vertices[1][0];
