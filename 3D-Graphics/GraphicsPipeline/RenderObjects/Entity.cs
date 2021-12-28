@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace _3D_Graphics {
     public class Entity {
-        public IFragmentShader FragmentShader;
         public Triangle[] Triangles;
 
-        public Entity(IFragmentShader fragmentShader) {
-            Triangles = new Triangle[0];
-            FragmentShader = fragmentShader;
+        public Entity(int triangleCount) {
+            Triangles = new Triangle[triangleCount];
         }
     }
 }

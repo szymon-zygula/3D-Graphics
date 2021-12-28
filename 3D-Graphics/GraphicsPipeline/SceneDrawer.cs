@@ -9,17 +9,17 @@ namespace _3D_Graphics {
         public static void DrawOnto(Scene scene, Texture texture) {
             for (int i = 0; i < scene.Entities.Length; ++i) {
                 for (int j = 0; j < scene.Entities[i].Triangles.Length; ++j) {
-                    DrawTriangle(scene.Entities[i].Triangles[j], scene.Entities[i].FragmentShader, texture);
+                    DrawTriangle(scene.Entities[i].Triangles[j], texture);
                 }
             }
         }
 
-        private static void DrawTriangle(Triangle triangle, IFragmentShader fragmentShader, Texture texture) {
+        private static void DrawTriangle(Triangle triangle, Texture texture) {
             Vec2[] points = new Vec2[3];
             points[0] = new Vec2(triangle.Vertices[0]);
             points[1] = new Vec2(triangle.Vertices[1]);
             points[2] = new Vec2(triangle.Vertices[2]);
-            ScanLineFiller.FillTriangle(texture, points, fragmentShader);
+            ScanLineFiller.FillTriangle(texture, points);
         }
     }
 
@@ -38,6 +38,12 @@ namespace _3D_Graphics {
 
             return
                 (float)(points[j].X - points[i].X) /
+                (float)(points[j].Y - points[i].Y);
+        }
+
+        private static Vec3 ColorDifferential(Vec2[] points, UInt32[] colors, int i, int j) {
+            return
+                (new Vec3(colors[j]) - new Vec3(colors[i])) /
                 (float)(points[j].Y - points[i].Y);
         }
 
@@ -95,13 +101,13 @@ namespace _3D_Graphics {
             }
         }
 
-        private static void DrawScanline(Texture plane, List<ActiveEdge> aet, int y, IFragmentShader fragmentShader) {
+        private static void DrawScanline(Texture plane, List<ActiveEdge> aet, int y) {
             for (int i = 0; i < aet.Count - 1; i += 2) {
                 ActiveEdge ae1 = aet[i];
                 ActiveEdge ae2 = aet[i + 1];
 
                 for (int x = (int)Math.Round(ae1.X); x <= (int)Math.Round(ae2.X); ++x) {
-                    plane.Pixels[x, y] = fragmentShader.Shade(new Vec2(0.0f, 0.0f), new Vec2(0.0f, 0.0f), new Vec2(0.0f, 0.0f));
+                    plane.Pixels[x, y] = new Vec3(0.0f, 0.0f, 1.0f);
                 }
 
                 ae1.X += ae1.Diff;
@@ -121,7 +127,7 @@ namespace _3D_Graphics {
             }
         }
 
-        public static void FillTriangle(Texture plane, Vec2[] points, IFragmentShader fragmentShader) {
+        public static void FillTriangle(Texture plane, Vec2[] points) {
             int[] perm = Enumerable.Range(0, points.Length).ToArray();
             Array.Sort(perm, (int a, int b) => points[a].Y.CompareTo(points[b].Y));
             (List<ActiveEdge> aet, int nextToProcess) = InitAET(points, perm);
@@ -133,7 +139,7 @@ namespace _3D_Graphics {
                 HandleNewPoints(points, perm, ref nextToProcess, aet, y);
 
                 aet.Sort((ActiveEdge a, ActiveEdge b) => a.X.CompareTo(b.X));
-                DrawScanline(plane, aet, y, fragmentShader);
+                DrawScanline(plane, aet, y);
             }
         }
     }

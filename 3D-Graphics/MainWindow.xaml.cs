@@ -32,9 +32,8 @@ namespace _3D_Graphics {
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[1];
-            MainScene.Entities[0] = new Entity(new SolidFragmentShader(new Vec3(1.0f, 0.5f, 0.1f)));
-            MainScene.Entities[0].Triangles = new Triangle[1];
-            MainScene.Entities[0].Triangles[0] = new Triangle();
+            MainScene.Entities[0] = new Entity(1);
+            MainScene.Entities[0].Triangles[0] = new Triangle(new SolidFragmentShader(new Vec3(1.0f, 1.0f, 1.0f)));
             MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new float[] { 10f, 10f });
             MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new float[] { 500f, 10f });
 
