@@ -36,14 +36,14 @@ namespace _3D_Graphics {
             //MainScene.Entities[0] = new Entity(1);
             //MainScene.Entities[0].Triangles[0] = new Triangle(
             //    new InterpolationFragmentShader(
-            //        new Vec3(0.0f, 0.0f, 1.0f),
-            //        new Vec3(1.0f, 0.0f, 0.0f),
-            //        new Vec3(0.0f, 1.0f, 0.0f)
+            //        new Vec3(0.0, 0.0, 1.0),
+            //        new Vec3(1.0, 0.0, 0.0),
+            //        new Vec3(0.0, 1.0, 0.0)
             //    )
             //);
-            //MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new double[] { -0.25f, 0.0f, 0.5f, 1.0f });
-            //MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new double[] { 0.25f, 0.0f, 0.5f, 1.0f });
-            //MainScene.Entities[0].Triangles[0].Vertices[2] = CreateVector.DenseOfArray(new double[] { 0.0f, 0.5f, 0.5f, 1.0f });
+            //MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new double[] { -0.25f, 0.0, 0.5f, 1.0 });
+            //MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new double[] { 0.25f, 0.0, 0.5f, 1.0 });
+            //MainScene.Entities[0].Triangles[0].Vertices[2] = CreateVector.DenseOfArray(new double[] { 0.0, 0.5f, 0.5f, 1.0 });
 
             a = 0.03;
             frames = 0;
@@ -57,7 +57,7 @@ namespace _3D_Graphics {
         private void RenderFrame(object sender, EventArgs e) {
             //MainScene.Entities[0].Triangles[0].Vertices[2][0] = (double)Math.Cos(a);
             //MainScene.Entities[0].Triangles[0].Vertices[2][1] = (double)Math.Sin(a);
-            //MainScene.Entities[0].Triangles[0].Vertices[2][2] = ((double)Math.Sin(2 * a) + 1.5f) / 2.0f;
+            //MainScene.Entities[0].Triangles[0].Vertices[2][2] = ((double)Math.Sin(2 * a) + 1.5f) / 2.0;
 
             Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
                 { Math.Cos(a), 0, -Math.Sin(a), 0},

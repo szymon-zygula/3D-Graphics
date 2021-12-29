@@ -32,10 +32,10 @@ namespace _3D_Graphics {
             Height = height;
 
             ProjectionMatrix = CreateMatrix.DenseOfArray(new double[4, 4] {
-                { 1.0f / ((double)Math.Tan(Fov / 2.0) * (Width / Height)), 0.0f, 0.0f, 0.0f },
-                { 0.0f, 1.0f / (double)Math.Tan(Fov / 2), 0.0f, 0.0f },
-                { 0.0f, 0.0f, (FarCull + CloseCull) / (FarCull - CloseCull), -2.0f * FarCull * CloseCull / (FarCull - CloseCull) },
-                { 0.0f, 0.0f, 1.0f, 0.0f }
+                { 1.0 / ((double)Math.Tan(Fov / 2.0) * (Width / Height)), 0.0, 0.0, 0.0 },
+                { 0.0, 1.0 / (double)Math.Tan(Fov / 2), 0.0, 0.0 },
+                { 0.0, 0.0, (FarCull + CloseCull) / (FarCull - CloseCull), -2.0 * FarCull * CloseCull / (FarCull - CloseCull) },
+                { 0.0, 0.0, 1.0, 0.0 }
             });
         }
 
@@ -60,10 +60,10 @@ namespace _3D_Graphics {
 
         private Vector<double> DisplayPerspective(Vector<double> v) {
             return CreateVector.DenseOfArray(new double[4] {
-                Width * (1.0f + v[0]) / 2.0f,
-                Height * (1.0f - v[1]) / 2.0f,
+                Width * (1.0 + v[0]) / 2.0,
+                Height * (1.0 - v[1]) / 2.0,
                 v[2],
-                1.0f
+                1.0
             });
         }
     }

@@ -25,7 +25,7 @@ namespace _3D_Graphics {
         }
 
         public static Vec2 RandomNormal() {
-            Vec2 u = new Vec2((double)Rnd.NextDouble() * 2.0f - 1.0f, (double)Rnd.NextDouble() * 2.0f - 1.0f);
+            Vec2 u = new Vec2((double)Rnd.NextDouble() * 2.0 - 1.0, (double)Rnd.NextDouble() * 2.0 - 1.0);
             return u.Normalize();
         }
 
@@ -55,16 +55,16 @@ namespace _3D_Graphics {
         }
 
         public Vec3(UInt32 color) {
-            X = (double)((color & 0x00FF0000) >> 16) / 255.0f;
-            Y = (double)((color & 0x0000FF00) >> 8) / 255.0f;
-            Z = (double)(color & 0x000000FF) / 255.0f;
+            X = (double)((color & 0x00FF0000) >> 16) / 255.0;
+            Y = (double)((color & 0x0000FF00) >> 8) / 255.0;
+            Z = (double)(color & 0x000000FF) / 255.0;
         }
 
         public UInt32 ToColor() {
             UInt32 a = 0xFF000000;
-            UInt32 r = (UInt32)(Math.Max(0.0f, Math.Min(Math.Round(X * 255.0f), 255.0f))) << 16;
-            UInt32 g = (UInt32)(Math.Max(0.0f, Math.Min(Math.Round(Y * 255.0f), 255.0f))) << 8;
-            UInt32 b = (UInt32)(Math.Max(0.0f, Math.Min(Math.Round(Z * 255.0f), 255.0f)));
+            UInt32 r = (UInt32)(Math.Max(0.0, Math.Min(Math.Round(X * 255.0), 255.0))) << 16;
+            UInt32 g = (UInt32)(Math.Max(0.0, Math.Min(Math.Round(Y * 255.0), 255.0))) << 8;
+            UInt32 b = (UInt32)(Math.Max(0.0, Math.Min(Math.Round(Z * 255.0), 255.0)));
 
             return a | r | g | b;
         }
@@ -87,9 +87,9 @@ namespace _3D_Graphics {
 
         public static Vec3 RandomNormal() {
             Vec3 u = new Vec3(
-                (double)Rnd.NextDouble() * 2.0f - 1.0f,
-                (double)Rnd.NextDouble() * 2.0f - 1.0f,
-                (double)Rnd.NextDouble() * 2.0f - 1.0f
+                (double)Rnd.NextDouble() * 2.0 - 1.0,
+                (double)Rnd.NextDouble() * 2.0 - 1.0,
+                (double)Rnd.NextDouble() * 2.0 - 1.0
             );
             return u.Normalize();
         }

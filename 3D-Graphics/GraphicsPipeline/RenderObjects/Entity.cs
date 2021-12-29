@@ -63,21 +63,21 @@ namespace _3D_Graphics {
                     vertices[faces[i][0] - 1][0],
                     vertices[faces[i][0] - 1][1],
                     vertices[faces[i][0] - 1][2],
-                    1.0f
+                    1.0
                 });
 
                 Triangles[i].Vertices[1] = CreateVector.DenseOfArray(new double[]{
                     vertices[faces[i][3] - 1][0],
                     vertices[faces[i][3] - 1][1],
                     vertices[faces[i][3] - 1][2],
-                    1.0f
+                    1.0
                 });
 
                 Triangles[i].Vertices[2] = CreateVector.DenseOfArray(new double[]{
                     vertices[faces[i][6] - 1][0],
                     vertices[faces[i][6] - 1][1],
                     vertices[faces[i][6] - 1][2],
-                    1.0f
+                    1.0
                 });
             }
         }
