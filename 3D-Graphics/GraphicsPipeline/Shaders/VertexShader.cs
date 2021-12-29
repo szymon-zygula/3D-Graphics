@@ -54,7 +54,7 @@ namespace _3D_Graphics {
         }
 
         private Vector<double> PerspectiveVector(Vector<double> v) {
-            Vector<double> Vc = ProjectionMatrix * v;
+            Vector<double> Vc = ProjectionMatrix * MatrixUtils.TranslateMatrix(new Vec3(0.0, 0.0, 2.0)) * v;
             return Vc / Vc[3];
         }
 

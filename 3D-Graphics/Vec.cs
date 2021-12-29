@@ -77,6 +77,14 @@ namespace _3D_Graphics {
             return this / Length();
         }
 
+        public static Vec3 Random() {
+            return new Vec3(
+                (double)Rnd.NextDouble(),
+                (double)Rnd.NextDouble(),
+                (double)Rnd.NextDouble()
+            );
+        }
+
         public static Vec3 RandomNormal() {
             Vec3 u = new Vec3(
                 (double)Rnd.NextDouble() * 2.0f - 1.0f,

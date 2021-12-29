@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace _3D_Graphics {
@@ -66,12 +67,9 @@ namespace _3D_Graphics {
             double xmin = vertices[0][0];
             double xmax = vertices[0][0];
 
-            if(vertices[0][1] == vertices[1][1]) {
-                xmax = vertices[1][0];
-            }
-
             for (int y = ymin; y < ymax; y++) { 
                 if(y == Math.Round(vertices[1][1])) {
+                    xmax = vertices[1][0];
                     diff2 = Differential(vertices[1], vertices[2]);
                 }
 

@@ -32,19 +32,20 @@ namespace _3D_Graphics {
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[1];
-            MainScene.Entities[0] = new Entity(1);
-            MainScene.Entities[0].Triangles[0] = new Triangle(
-                new InterpolationFragmentShader(
-                    new Vec3(0.0f, 0.0f, 1.0f),
-                    new Vec3(1.0f, 0.0f, 0.0f),
-                    new Vec3(0.0f, 1.0f, 0.0f)
-                )
-            );
-            MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new double[] { -0.25f, 0.0f, 0.5f, 1.0f });
-            MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new double[] { 0.25f, 0.0f, 0.5f, 1.0f });
-            MainScene.Entities[0].Triangles[0].Vertices[2] = CreateVector.DenseOfArray(new double[] { 0.0f, 0.5f, 0.5f, 1.0f });
+            MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj");
+            //MainScene.Entities[0] = new Entity(1);
+            //MainScene.Entities[0].Triangles[0] = new Triangle(
+            //    new InterpolationFragmentShader(
+            //        new Vec3(0.0f, 0.0f, 1.0f),
+            //        new Vec3(1.0f, 0.0f, 0.0f),
+            //        new Vec3(0.0f, 1.0f, 0.0f)
+            //    )
+            //);
+            //MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new double[] { -0.25f, 0.0f, 0.5f, 1.0f });
+            //MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new double[] { 0.25f, 0.0f, 0.5f, 1.0f });
+            //MainScene.Entities[0].Triangles[0].Vertices[2] = CreateVector.DenseOfArray(new double[] { 0.0f, 0.5f, 0.5f, 1.0f });
 
-            a = 0.0;
+            a = 0.03;
             frames = 0;
 
             CompositionTarget.Rendering += RenderFrame;
@@ -54,10 +55,18 @@ namespace _3D_Graphics {
         }
 
         private void RenderFrame(object sender, EventArgs e) {
-            a += 0.04;
-            MainScene.Entities[0].Triangles[0].Vertices[2][0] = (double)Math.Cos(a);
-            MainScene.Entities[0].Triangles[0].Vertices[2][1] = (double)Math.Sin(a);
-            MainScene.Entities[0].Triangles[0].Vertices[2][2] = ((double)Math.Sin(2 * a) + 1.5f) / 2.0f;
+            //MainScene.Entities[0].Triangles[0].Vertices[2][0] = (double)Math.Cos(a);
+            //MainScene.Entities[0].Triangles[0].Vertices[2][1] = (double)Math.Sin(a);
+            //MainScene.Entities[0].Triangles[0].Vertices[2][2] = ((double)Math.Sin(2 * a) + 1.5f) / 2.0f;
+
+            Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
+                { Math.Cos(a), 0, -Math.Sin(a), 0},
+                { 0, 1, 0, 0 },
+                { Math.Sin(a), 0, Math.Cos(a), 0},
+                { 0, 0, 0, 1}
+            });
+
+            MainScene.Entities[0].Transform(rot);
 
             DrawingPlane.Clean(new Vec3(0.5f, 0.75f, 0.25f));
             SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(1.5f, 0.1f, 0.90f, DrawingPlane.Width, DrawingPlane.Height));
@@ -66,7 +75,7 @@ namespace _3D_Graphics {
             frames += 1;
             if(frames % 100 == 0) {
                 sw.Stop();
-                MessageBox.Show($"Average FPS: {(double)frames / (double)sw.ElapsedMilliseconds * 1000}");
+                //MessageBox.Show($"Average FPS: {(double)frames / (double)sw.ElapsedMilliseconds * 1000}");
                 sw.Start();
             }
         }
