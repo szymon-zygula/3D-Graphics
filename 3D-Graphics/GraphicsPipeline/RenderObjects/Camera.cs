@@ -15,14 +15,14 @@ namespace _3D_Graphics {
         public Vec3 Up;
 
         public Matrix<double> ViewMatrix() {
-            Vec3 intoCameraDir = (ObservedPoint - Position).Normalize();
-            Vec3 rightDir = Vec3.CrossProduct(Up, intoCameraDir).Normalize();
-            Vec3 upCamera = Vec3.CrossProduct(intoCameraDir, rightDir);
+            Vec3 outOfCameraDir = (ObservedPoint - Position).Normalize();
+            Vec3 rightDir = Vec3.CrossProduct(Up, outOfCameraDir).Normalize();
+            Vec3 upCamera = Vec3.CrossProduct(outOfCameraDir, rightDir);
 
             return CreateMatrix.DenseOfArray(new double[4, 4] {
                 { rightDir.X, rightDir.Y, rightDir.Z, 0.0 },
                 { upCamera.X, upCamera.Y, upCamera.Z, 0.0 },
-                { intoCameraDir.X, intoCameraDir.Y, intoCameraDir.Z, 0.0 },
+                { outOfCameraDir.X, outOfCameraDir.Y, outOfCameraDir.Z, 0.0 },
                 { 0.0, 0.0, 0.0, 1.0 }
             }) * CreateMatrix.DenseOfArray(new double[4, 4] {
                 { 1.0, 0.0, 0.0, -Position.X },

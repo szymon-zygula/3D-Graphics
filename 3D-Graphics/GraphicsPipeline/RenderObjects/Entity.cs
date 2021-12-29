@@ -63,13 +63,14 @@ namespace _3D_Graphics {
             }
             TextureFragmentShader textureShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(texturePath)));
             Triangles = new Triangle[faces.Count];
+
+            // Z negowany by przejsc do ukladu prawoskretnego
             for (int i = 0; i < faces.Count; ++i) {
                 Triangles[i] = new Triangle(textureShader);
-                //Triangles[i] = new Triangle(new FlatFragmentShader(Vec3.Random()));
                 Triangles[i].Vertices[0] = CreateVector.DenseOfArray(new double[] {
                     vertices[faces[i][0] - 1][0],
                     vertices[faces[i][0] - 1][1],
-                    vertices[faces[i][0] - 1][2],
+                    -vertices[faces[i][0] - 1][2],
                     1.0
                 });
                 Triangles[i].TextureCoords[0] = textureCoords[faces[i][1] - 1];
@@ -77,7 +78,7 @@ namespace _3D_Graphics {
                 Triangles[i].Vertices[1] = CreateVector.DenseOfArray(new double[]{
                     vertices[faces[i][3] - 1][0],
                     vertices[faces[i][3] - 1][1],
-                    vertices[faces[i][3] - 1][2],
+                    -vertices[faces[i][3] - 1][2],
                     1.0
                 });
                 Triangles[i].TextureCoords[1] = textureCoords[faces[i][4] - 1];
@@ -85,7 +86,7 @@ namespace _3D_Graphics {
                 Triangles[i].Vertices[2] = CreateVector.DenseOfArray(new double[]{
                     vertices[faces[i][6] - 1][0],
                     vertices[faces[i][6] - 1][1],
-                    vertices[faces[i][6] - 1][2],
+                    -vertices[faces[i][6] - 1][2],
                     1.0
                 });
                 Triangles[i].TextureCoords[2] = textureCoords[faces[i][7] - 1];
@@ -94,9 +95,9 @@ namespace _3D_Graphics {
 
         public void Transform(Matrix<double> transform) {
             foreach(Triangle triangle in Triangles) {
-                triangle.Vertices[0] *= transform;
-                triangle.Vertices[1] *= transform;
-                triangle.Vertices[2] *= transform;
+                triangle.Vertices[0] = transform * triangle.Vertices[0];
+                triangle.Vertices[1] = transform * triangle.Vertices[1];
+                triangle.Vertices[2] = transform * triangle.Vertices[2];
             }
         }
     }

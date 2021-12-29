@@ -32,13 +32,16 @@ namespace _3D_Graphics {
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
             MainScene = new Scene();
-            MainScene.Entities = new Entity[1];
+            MainScene.Entities = new Entity[2];
             MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
+            MainScene.Entities[1] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
+            MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(1.0, 0.0, 0.0)));
+
             MainCamera = new Camera() {
                 Fov = 1.0,
                 ClosePlane = 0.1,
                 FarPlane = 0.9,
-                ObservedPoint = new Vec3(0.0, 0.0, 1.0),
+                ObservedPoint = new Vec3(0.0, 0.0, 0.0),
                 Position = new Vec3(0.0, 0.0, -3.0),
                 Up = new Vec3(0.0, 1.0, 0.0)
             };
@@ -57,14 +60,20 @@ namespace _3D_Graphics {
             //MainScene.Entities[0].Triangles[0].Vertices[2][1] = (double)Math.Sin(a);
             //MainScene.Entities[0].Triangles[0].Vertices[2][2] = ((double)Math.Sin(2 * a) + 1.5f) / 2.0;
 
+            a += 0.03;
+
+            MainCamera.Position.X = Math.Sin(a) * -3.0;
+            MainCamera.Position.Z = Math.Cos(a) * 3.0;
+
             Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
-                { Math.Cos(a), 0, -Math.Sin(a), 0},
-                { 0, 1, 0, 0 },
-                { Math.Sin(a), 0, Math.Cos(a), 0},
+                { 1, 0, 0, 0 },
+                { 0, Math.Cos(0.05),  -Math.Sin(0.05), 0},
+                { 0, Math.Sin(0.05),  Math.Cos(0.05), 0},
                 { 0, 0, 0, 1}
             });
 
             MainScene.Entities[0].Transform(rot);
+            MainScene.Entities[1].Transform(MatrixUtils.TranslateMatrix(new Vec3(0.0, 0.0, -0.10)));
 
             DrawingPlane.Clean(new Vec3(0.5, 0.75, 0.25));
             SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(MainCamera, DrawingPlane.Width, DrawingPlane.Height));
