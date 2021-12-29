@@ -10,15 +10,17 @@ using System.Windows;
 namespace _3D_Graphics {
     public class Entity {
         public Triangle[] Triangles;
+        public Texture Texture;
 
         public Entity(int triangleCount) {
             Triangles = new Triangle[triangleCount];
         }
 
-        public Entity(string modelPath) {
+        public Entity(string modelPath, string texturePath) {
             List<string[]> lines = new List<string[]>();
             List<int[]> faces = new List<int[]>();
             List<double[]> vertices = new List<double[]>();
+            List<Vec2> textureCoords = new List<Vec2>();
 
             foreach(string line in File.ReadLines(modelPath)) {
                 string[] parsed = line.Split(' ', '/');
@@ -43,6 +45,10 @@ namespace _3D_Graphics {
 
                         break;
                     case "vt":
+                        textureCoords.Add(new Vec2 (
+                            double.Parse(parsed[2]),
+                            double.Parse(parsed[3])
+                        ));
                         break;
                     case "vn":
                         break;
@@ -55,16 +61,18 @@ namespace _3D_Graphics {
                         break;
                 }
             }
-
+            TextureFragmentShader textureShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(texturePath)));
             Triangles = new Triangle[faces.Count];
             for (int i = 0; i < faces.Count; ++i) {
-                Triangles[i] = new Triangle(new FlatFragmentShader(Vec3.Random()));
-                Triangles[i].Vertices[0] = CreateVector.DenseOfArray(new double[]{
+                Triangles[i] = new Triangle(textureShader);
+                //Triangles[i] = new Triangle(new FlatFragmentShader(Vec3.Random()));
+                Triangles[i].Vertices[0] = CreateVector.DenseOfArray(new double[] {
                     vertices[faces[i][0] - 1][0],
                     vertices[faces[i][0] - 1][1],
                     vertices[faces[i][0] - 1][2],
                     1.0
                 });
+                Triangles[i].TextureCoords[0] = textureCoords[faces[i][1] - 1];
 
                 Triangles[i].Vertices[1] = CreateVector.DenseOfArray(new double[]{
                     vertices[faces[i][3] - 1][0],
@@ -72,6 +80,7 @@ namespace _3D_Graphics {
                     vertices[faces[i][3] - 1][2],
                     1.0
                 });
+                Triangles[i].TextureCoords[1] = textureCoords[faces[i][4] - 1];
 
                 Triangles[i].Vertices[2] = CreateVector.DenseOfArray(new double[]{
                     vertices[faces[i][6] - 1][0],
@@ -79,6 +88,7 @@ namespace _3D_Graphics {
                     vertices[faces[i][6] - 1][2],
                     1.0
                 });
+                Triangles[i].TextureCoords[2] = textureCoords[faces[i][7] - 1];
             }
         }
 

@@ -50,11 +50,13 @@ namespace _3D_Graphics {
             projectedTriangle.Vertices[1] = DisplayPerspective(projectedTriangle.Vertices[1]);
             projectedTriangle.Vertices[2] = DisplayPerspective(projectedTriangle.Vertices[2]);
 
+            projectedTriangle.TextureCoords = triangle.TextureCoords;
+
             return projectedTriangle;
         }
 
         private Vector<double> PerspectiveVector(Vector<double> v) {
-            Vector<double> Vc = ProjectionMatrix * MatrixUtils.TranslateMatrix(new Vec3(0.0, 0.0, 2.0)) * v;
+            Vector<double> Vc = ProjectionMatrix * MatrixUtils.TranslateMatrix(new Vec3(0.0, 0.0, 1.5)) * v;
             return Vc / Vc[3];
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace _3D_Graphics {
     public interface IFragmentShader {
@@ -34,6 +35,25 @@ namespace _3D_Graphics {
 
         public Vec3 Shade(Triangle triangle, Vec3 bary) {
             return Color1 * bary.X + Color2 * bary.Y + Color3 * bary.Z;
+        }
+    }
+
+    public class TextureFragmentShader : IFragmentShader {
+        Texture Texture;
+
+        public TextureFragmentShader(Texture texture) {
+            Texture = texture;
+        }
+
+        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+            Vec2 uv =
+                triangle.TextureCoords[0] * bary.X +
+                triangle.TextureCoords[1] * bary.Y +
+                triangle.TextureCoords[2] * bary.Z;
+
+            int u = (int)Math.Max(0.0, Math.Min(Math.Round(uv.X * (Texture.Width - 1)), Texture.Width - 1));
+            int v = (int)Math.Max(0.0, Math.Min(Math.Round((1.0 - uv.Y) * (Texture.Height - 1)), Texture.Height - 1));
+            return Texture.Pixels[u, v];
         }
     }
 }

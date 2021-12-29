@@ -9,22 +9,35 @@ using MathNet.Numerics.LinearAlgebra;
 namespace _3D_Graphics {
     public abstract class SceneDrawer {
         public static void DrawOnto(Scene scene, Texture texture, IVertexShader vertexShader) {
+            double[,] zBuffer = new double[texture.Width, texture.Height];
+
+            for(int x = 0; x < texture.Width; ++x) {
+                for(int y = 0; y < texture.Height; ++y) {
+                    zBuffer[x, y] = double.NegativeInfinity;
+                }
+            }
+
             for (int i = 0; i < scene.Entities.Length; ++i) {
                 for (int j = 0; j < scene.Entities[i].Triangles.Length; ++j) {
-                    FillTriangle(texture, vertexShader.Shade(scene.Entities[i].Triangles[j]));
+                    FillTriangle(texture, vertexShader.Shade(scene.Entities[i].Triangles[j]), zBuffer);
                 }
             }
         }
 
-        private static void DrawScanline(Texture plane, int xmin, int xmax, int y, Triangle triangle) {
+        private static void DrawScanline(Texture plane, int xmin, int xmax, int y, Triangle triangle, double[,] zBuffer) {
             if (y < 0 || y >= plane.Height) {
                 return;
             }
 
             xmin = Math.Max(xmin, 0);
             xmax = Math.Min(xmax, plane.Width - 1);
-            for (int x = xmin; x <= xmax; ++x) {
-                plane.Pixels[x, y] = triangle.ShadeAt(Barycentric(triangle, x, y));
+            for (int x = xmin; x < xmax; ++x) {
+                Vec3 bary = Barycentric(triangle, x, y);
+                double depth = bary.X * triangle.Vertices[0][2] + bary.Y * triangle.Vertices[1][2] + bary.Z * triangle.Vertices[2][2];
+                if(depth > zBuffer[x, y]) {
+                    plane.Pixels[x, y] = triangle.ShadeAt(bary);
+                    zBuffer[x, y] = depth;
+                }
             }
         }
 
@@ -51,16 +64,15 @@ namespace _3D_Graphics {
             return new Vec3(1f - (cross.X + cross.Y) / cross.Z, cross.Y / cross.Z, cross.X / cross.Z);
         }
 
-        public static void FillTriangle(Texture plane, Triangle triangle) {
+        public static void FillTriangle(Texture plane, Triangle triangle, double[,] zBuffer) {
             if (triangle.Vertices[0][1] == triangle.Vertices[1][1] && triangle.Vertices[0][1] == triangle.Vertices[2][1]) {
                 return;
             }
 
             Vector<double>[] vertices = triangle.VerticesSortedByY();
 
-            int height = (int)Math.Round(vertices[2][1] - vertices[0][1]);
             int ymin = (int)Math.Round(vertices[0][1]);
-            int ymax = ymin + height;
+            int ymax = (int)Math.Round(vertices[2][1]);
 
             double diff1 = Differential(vertices[0], vertices[2]);
             double diff2 = Differential(vertices[0], vertices[1]);
@@ -74,10 +86,10 @@ namespace _3D_Graphics {
                 }
 
                 if (xmin > xmax) {
-                    DrawScanline(plane, (int)Math.Round(xmax), (int)Math.Round(xmin), y, triangle);
+                    DrawScanline(plane, (int)Math.Round(xmax), (int)Math.Round(xmin), y, triangle, zBuffer);
                 }
                 else {
-                    DrawScanline(plane, (int)Math.Round(xmin), (int)Math.Round(xmax), y, triangle);
+                    DrawScanline(plane, (int)Math.Round(xmin), (int)Math.Round(xmax), y, triangle, zBuffer);
                 }
 
                 xmin += diff1;

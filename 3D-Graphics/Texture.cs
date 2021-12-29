@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace _3D_Graphics {
     // This class has to be used instead of System.Drawing.Bitmap,

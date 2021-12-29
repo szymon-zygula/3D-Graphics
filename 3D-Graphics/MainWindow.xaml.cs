@@ -32,18 +32,7 @@ namespace _3D_Graphics {
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[1];
-            MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj");
-            //MainScene.Entities[0] = new Entity(1);
-            //MainScene.Entities[0].Triangles[0] = new Triangle(
-            //    new InterpolationFragmentShader(
-            //        new Vec3(0.0, 0.0, 1.0),
-            //        new Vec3(1.0, 0.0, 0.0),
-            //        new Vec3(0.0, 1.0, 0.0)
-            //    )
-            //);
-            //MainScene.Entities[0].Triangles[0].Vertices[0] = CreateVector.DenseOfArray(new double[] { -0.25f, 0.0, 0.5f, 1.0 });
-            //MainScene.Entities[0].Triangles[0].Vertices[1] = CreateVector.DenseOfArray(new double[] { 0.25f, 0.0, 0.5f, 1.0 });
-            //MainScene.Entities[0].Triangles[0].Vertices[2] = CreateVector.DenseOfArray(new double[] { 0.0, 0.5f, 0.5f, 1.0 });
+            MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
 
             a = 0.03;
             frames = 0;
