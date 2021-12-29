@@ -22,17 +22,26 @@ namespace _3D_Graphics {
         int frames;
         Stopwatch sw;
         Scene MainScene;
+        Camera MainCamera;
 
         public MainWindow() {
             InitializeComponent();
 
             DrawingPlane = new Texture((int)ImageCanvas.Width, (int)ImageCanvas.Height);
-            DrawingPlane.Clean(new Vec3(0.5f, 0.25f, 0.75f));
+            DrawingPlane.Clean(new Vec3(0.5, 0.25, 0.75));
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[1];
             MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
+            MainCamera = new Camera() {
+                Fov = 1.0,
+                ClosePlane = 0.1,
+                FarPlane = 0.9,
+                ObservedPoint = new Vec3(0.0, 0.0, 1.0),
+                Position = new Vec3(0.0, 0.0, -3.0),
+                Up = new Vec3(0.0, 1.0, 0.0)
+            };
 
             a = 0.03;
             frames = 0;
@@ -57,8 +66,8 @@ namespace _3D_Graphics {
 
             MainScene.Entities[0].Transform(rot);
 
-            DrawingPlane.Clean(new Vec3(0.5f, 0.75f, 0.25f));
-            SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(1.5f, 0.1f, 0.90f, DrawingPlane.Width, DrawingPlane.Height));
+            DrawingPlane.Clean(new Vec3(0.5, 0.75, 0.25));
+            SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(MainCamera, DrawingPlane.Width, DrawingPlane.Height));
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
             frames += 1;

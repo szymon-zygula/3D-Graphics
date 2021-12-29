@@ -17,26 +17,17 @@ namespace _3D_Graphics {
     }
 
     public class ProjectionVertexShader : IVertexShader {
-        double Fov;
-        double FarCull;
-        double CloseCull;
+        Matrix<double> ProjectionMatrix;
+        Camera Camera;
         double Width;
         double Height;
-        Matrix<double> ProjectionMatrix;
 
-        public ProjectionVertexShader(double fov, double farCull, double closeCull, double width, double height) {
-            Fov = fov;
-            FarCull = farCull;
-            CloseCull = closeCull;
+        public ProjectionVertexShader(Camera camera, double width, double height) {
             Width = width;
             Height = height;
+            Camera = camera;
 
-            ProjectionMatrix = CreateMatrix.DenseOfArray(new double[4, 4] {
-                { 1.0 / ((double)Math.Tan(Fov / 2.0) * (Width / Height)), 0.0, 0.0, 0.0 },
-                { 0.0, 1.0 / (double)Math.Tan(Fov / 2), 0.0, 0.0 },
-                { 0.0, 0.0, (FarCull + CloseCull) / (FarCull - CloseCull), -2.0 * FarCull * CloseCull / (FarCull - CloseCull) },
-                { 0.0, 0.0, 1.0, 0.0 }
-            });
+            ProjectionMatrix = camera.ProjectionMatrix(width / height);
         }
 
         public Triangle Shade(Triangle triangle) {
@@ -56,7 +47,7 @@ namespace _3D_Graphics {
         }
 
         private Vector<double> PerspectiveVector(Vector<double> v) {
-            Vector<double> Vc = ProjectionMatrix * MatrixUtils.TranslateMatrix(new Vec3(0.0, 0.0, 1.5)) * v;
+            Vector<double> Vc = ProjectionMatrix * Camera.ViewMatrix() * v;
             return Vc / Vc[3];
         }
 

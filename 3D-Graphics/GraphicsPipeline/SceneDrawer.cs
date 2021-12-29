@@ -13,7 +13,7 @@ namespace _3D_Graphics {
 
             for(int x = 0; x < texture.Width; ++x) {
                 for(int y = 0; y < texture.Height; ++y) {
-                    zBuffer[x, y] = double.NegativeInfinity;
+                    zBuffer[x, y] = double.PositiveInfinity;
                 }
             }
 
@@ -34,7 +34,7 @@ namespace _3D_Graphics {
             for (int x = xmin; x < xmax; ++x) {
                 Vec3 bary = Barycentric(triangle, x, y);
                 double depth = bary.X * triangle.Vertices[0][2] + bary.Y * triangle.Vertices[1][2] + bary.Z * triangle.Vertices[2][2];
-                if(depth > zBuffer[x, y]) {
+                if(depth < zBuffer[x, y]) {
                     plane.Pixels[x, y] = triangle.ShadeAt(bary);
                     zBuffer[x, y] = depth;
                 }
