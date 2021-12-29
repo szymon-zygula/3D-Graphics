@@ -52,19 +52,19 @@ namespace _3D_Graphics {
                 triangle.TextureCoords[1] * bary.Y +
                 triangle.TextureCoords[2] * bary.Z;
 
-            int u = (int)Math.Max(0.0, Math.Min(Math.Round(uv.X * (Texture.Width - 1)), Texture.Width - 1));
-            int v = (int)Math.Max(0.0, Math.Min(Math.Round((1.0 - uv.Y) * (Texture.Height - 1)), Texture.Height - 1));
+            int u = (int)MathUtils.Clamp(Math.Round(uv.X * (Texture.Width - 1)), 0.0, Texture.Width - 1);
+            int v = (int)MathUtils.Clamp(Math.Round((1.0 - uv.Y) * (Texture.Height - 1)), 0.0, Texture.Height - 1);
             return Texture.Pixels[u, v];
         }
     }
 
     public class GouraudFragmentShaderDecorator : IFragmentShader {
         IFragmentShader InnerShader;
-        Vec3 Direction;
+        Vector<double> Direction;
 
         public GouraudFragmentShaderDecorator(IFragmentShader innerShader, Vec3 direction) {
             InnerShader = innerShader;
-            Direction = direction;
+            Direction = direction.ToHomogenousDirection();
         }
 
         public Vec3 Shade(Triangle triangle, Vec3 bary) {
@@ -72,9 +72,8 @@ namespace _3D_Graphics {
                 triangle.Normals[0] * bary.X +
                 triangle.Normals[1] * bary.Y +
                 triangle.Normals[2] * bary.Z;
-            Vec3 normalVec3 = new Vec3(normal);
-            double intensity = Vec3.DotProduct(normalVec3, Direction) * 2.0;
 
+            double intensity = normal * Direction * 2.0;
             return intensity * InnerShader.Shade(triangle, bary);
         }
     }

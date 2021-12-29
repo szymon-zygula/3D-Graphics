@@ -60,6 +60,12 @@ namespace _3D_Graphics {
             });
         }
 
+        public Vector<double> ToHomogenousDirection() {
+            return CreateVector.DenseOfArray(new double[4] {
+                X, Y, Z, 0.0
+            });
+        }
+
         public Vec3(UInt32 color) {
             X = (double)((color & 0x00FF0000) >> 16) / 255.0;
             Y = (double)((color & 0x0000FF00) >> 8) / 255.0;
@@ -68,9 +74,9 @@ namespace _3D_Graphics {
 
         public UInt32 ToColor() {
             UInt32 a = 0xFF000000;
-            UInt32 r = (UInt32)(Math.Max(0.0, Math.Min(Math.Round(X * 255.0), 255.0))) << 16;
-            UInt32 g = (UInt32)(Math.Max(0.0, Math.Min(Math.Round(Y * 255.0), 255.0))) << 8;
-            UInt32 b = (UInt32)(Math.Max(0.0, Math.Min(Math.Round(Z * 255.0), 255.0)));
+            UInt32 r = (UInt32)(MathUtils.Clamp(Math.Round(X * 255.0), 0.0, 255.0)) << 16;
+            UInt32 g = (UInt32)(MathUtils.Clamp(Math.Round(Y * 255.0), 0.0, 255.0)) << 8;
+            UInt32 b = (UInt32)(MathUtils.Clamp(Math.Round(Z * 255.0), 0.0, 255.0));
 
             return a | r | g | b;
         }

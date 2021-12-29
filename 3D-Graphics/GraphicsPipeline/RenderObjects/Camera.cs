@@ -14,12 +14,16 @@ namespace _3D_Graphics {
         public Vec3 Position;
         public Vec3 Up;
 
-        public Matrix<double> ViewMatrix() {
+        public Matrix<double> ViewMatrix { get; private set; }
+        public Matrix<double> ProjectionMatrix { get; private set; }
+        public Matrix<double> InvTransProjectionMatrix { get; private set; }
+
+        public void UpdateViewMatrix() {
             Vec3 outOfCameraDir = (ObservedPoint - Position).Normalize();
             Vec3 rightDir = Vec3.CrossProduct(Up, outOfCameraDir).Normalize();
             Vec3 upCamera = Vec3.CrossProduct(outOfCameraDir, rightDir);
 
-            return CreateMatrix.DenseOfArray(new double[4, 4] {
+            ViewMatrix = CreateMatrix.DenseOfArray(new double[4, 4] {
                 { rightDir.X, rightDir.Y, rightDir.Z, 0.0 },
                 { upCamera.X, upCamera.Y, upCamera.Z, 0.0 },
                 { outOfCameraDir.X, outOfCameraDir.Y, outOfCameraDir.Z, 0.0 },
@@ -32,13 +36,15 @@ namespace _3D_Graphics {
             });
         }
 
-        public Matrix<double> ProjectionMatrix(double aspect) {
-            return CreateMatrix.DenseOfArray(new double[4, 4] {
+        public void UpdateProjectionMatrix(double aspect) {
+            ProjectionMatrix = CreateMatrix.DenseOfArray(new double[4, 4] {
                 { 1.0 / ((double)Math.Tan(Fov / 2.0) * aspect), 0.0, 0.0, 0.0 },
                 { 0.0, 1.0 / (double)Math.Tan(Fov / 2), 0.0, 0.0 },
                 { 0.0, 0.0, (FarPlane + ClosePlane) / (FarPlane - ClosePlane), -2.0 * FarPlane * ClosePlane / (FarPlane - ClosePlane) },
                 { 0.0, 0.0, 1.0, 0.0 }
             });
+
+            InvTransProjectionMatrix = ProjectionMatrix.Inverse().Transpose();
         }
     }
 }

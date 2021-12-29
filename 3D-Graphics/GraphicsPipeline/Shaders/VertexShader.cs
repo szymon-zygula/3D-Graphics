@@ -17,8 +17,6 @@ namespace _3D_Graphics {
     }
 
     public class ProjectionVertexShader : IVertexShader {
-        Matrix<double> ProjectionMatrix;
-        Matrix<double> InvTransProjectionMatrix;
         Camera Camera;
         double Width;
         double Height;
@@ -27,9 +25,6 @@ namespace _3D_Graphics {
             Width = width;
             Height = height;
             Camera = camera;
-
-            ProjectionMatrix = camera.ProjectionMatrix(width / height);
-            InvTransProjectionMatrix = ProjectionMatrix.Inverse().Transpose();
         }
 
         public Triangle Shade(Triangle triangle) {
@@ -52,11 +47,11 @@ namespace _3D_Graphics {
         }
 
         private Vector<double> PerspectiveVector(Vector<double> v) {
-            Vector<double> Vc = ProjectionMatrix * Camera.ViewMatrix() * v;
+            Vector<double> Vc = Camera.ProjectionMatrix * Camera.ViewMatrix * v;
             return Vc / Vc[3];
         }
         private Vector<double> PerspectiveNormal(Vector<double> n) {
-            Vector<double> Nc = InvTransProjectionMatrix * n;
+            Vector<double> Nc = Camera.InvTransProjectionMatrix * n;
             return Nc;
         }
 

@@ -45,6 +45,8 @@ namespace _3D_Graphics {
                 Position = new Vec3(0.0, 0.0, -3.0),
                 Up = new Vec3(0.0, 1.0, 0.0)
             };
+            MainCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
+            MainCamera.UpdateViewMatrix();
 
             a = 0.03;
             frames = 0;
@@ -60,6 +62,7 @@ namespace _3D_Graphics {
 
             MainCamera.Position.X = Math.Sin(a) * -3.0;
             MainCamera.Position.Z = Math.Cos(a) * 3.0;
+            MainCamera.UpdateViewMatrix();
 
             Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
                 { 1, 0, 0, 0 },
@@ -77,7 +80,7 @@ namespace _3D_Graphics {
             frames += 1;
             if(frames % 100 == 0) {
                 sw.Stop();
-                //MessageBox.Show($"Average FPS: {(double)frames / (double)sw.ElapsedMilliseconds * 1000}");
+                MessageBox.Show($"Average FPS: {(double)frames / (double)sw.ElapsedMilliseconds * 1000}");
                 sw.Start();
             }
         }

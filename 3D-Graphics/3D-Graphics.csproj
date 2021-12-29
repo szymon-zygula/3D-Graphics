@@ -71,6 +71,7 @@
     <Compile Include="GraphicsPipeline\Shaders\FragmentShader.cs" />
     <Compile Include="GraphicsPipeline\RenderObjects\Scene.cs" />
     <Compile Include="GraphicsPipeline\SceneDrawer.cs" />
+    <Compile Include="MathUtils.cs" />
     <Compile Include="MatrixUtils.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="Vec.cs" />
