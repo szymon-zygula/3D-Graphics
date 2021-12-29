@@ -54,6 +54,12 @@ namespace _3D_Graphics {
             Z = mathV[2];
         }
 
+        public Vector<double> ToHomogenous() {
+            return CreateVector.DenseOfArray(new double[4] {
+                X, Y, Z, 1.0
+            });
+        }
+
         public Vec3(UInt32 color) {
             X = (double)((color & 0x00FF0000) >> 16) / 255.0;
             Y = (double)((color & 0x0000FF00) >> 8) / 255.0;

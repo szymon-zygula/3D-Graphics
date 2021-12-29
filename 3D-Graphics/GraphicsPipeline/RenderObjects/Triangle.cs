@@ -4,11 +4,13 @@ using System;
 namespace _3D_Graphics {
     public class Triangle {
         public Vector<double>[] Vertices;
+        public Vector<double>[] Normals;
         public Vec2[] TextureCoords;
         public IFragmentShader FragmentShader;
 
         public Triangle(IFragmentShader fragmentShader) {
             Vertices = new Vector<double>[3];
+            Normals = new Vector<double>[3];
             TextureCoords = new Vec2[3];
             FragmentShader = fragmentShader;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics.LinearAlgebra;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,6 +55,27 @@ namespace _3D_Graphics {
             int u = (int)Math.Max(0.0, Math.Min(Math.Round(uv.X * (Texture.Width - 1)), Texture.Width - 1));
             int v = (int)Math.Max(0.0, Math.Min(Math.Round((1.0 - uv.Y) * (Texture.Height - 1)), Texture.Height - 1));
             return Texture.Pixels[u, v];
+        }
+    }
+
+    public class GouraudFragmentShaderDecorator : IFragmentShader {
+        IFragmentShader InnerShader;
+        Vec3 Direction;
+
+        public GouraudFragmentShaderDecorator(IFragmentShader innerShader, Vec3 direction) {
+            InnerShader = innerShader;
+            Direction = direction;
+        }
+
+        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+            Vector<double> normal =
+                triangle.Normals[0] * bary.X +
+                triangle.Normals[1] * bary.Y +
+                triangle.Normals[2] * bary.Z;
+            Vec3 normalVec3 = new Vec3(normal);
+            double intensity = Vec3.DotProduct(normalVec3, Direction) * 2.0;
+
+            return intensity * InnerShader.Shade(triangle, bary);
         }
     }
 }
