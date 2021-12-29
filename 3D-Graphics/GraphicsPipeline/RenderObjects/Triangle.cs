@@ -19,6 +19,13 @@ namespace _3D_Graphics {
             return FragmentShader.Shade(this, bary);
         }
 
+        public bool CorrectWinding() {
+            Vec3 a = new Vec3(Vertices[1] - Vertices[0]);
+            Vec3 b = new Vec3(Vertices[2] - Vertices[0]);
+            Vec3 cross = Vec3.CrossProduct(a, b);
+            return cross.Z < 0;
+        }
+
         public Vector<double>[] VerticesSortedByY() {
             Vector<double>[] vertices = new Vector<double>[3];
             Array.Copy(Vertices, vertices, 3);

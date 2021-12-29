@@ -65,7 +65,7 @@ namespace _3D_Graphics {
         }
 
         public static void FillTriangle(Texture plane, Triangle triangle, double[,] zBuffer) {
-            if (triangle.Vertices[0][1] == triangle.Vertices[1][1] && triangle.Vertices[0][1] == triangle.Vertices[2][1]) {
+            if (triangle.Vertices[0][1] == triangle.Vertices[1][1] && triangle.Vertices[0][1] == triangle.Vertices[2][1] || !triangle.CorrectWinding()) {
                 return;
             }
 
