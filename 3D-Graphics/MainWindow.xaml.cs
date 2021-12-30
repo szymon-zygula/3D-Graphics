@@ -26,30 +26,35 @@ namespace _3D_Graphics {
         Vec3 Light;
         GouraudFragmentShaderDecorator HeadLight;
         FlatLightFragmentShaderDecorator BallLight;
+        Vec3 CleanColor;
 
         public MainWindow() {
             InitializeComponent();
 
             DrawingPlane = new Texture((int)ImageCanvas.Width, (int)ImageCanvas.Height);
-            DrawingPlane.Clean(new Vec3(0.5, 0.25, 0.75));
+            CleanColor = new Vec3(0.5, 0.75, 0.25);
+            DrawingPlane.Clean(CleanColor);
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
-            Light = new Vec3(1.0, 0.0, 0.0);
+            Light = new Vec3(0.0, 0.0, -1.0);
 
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[2];
             BallLight = new FlatLightFragmentShaderDecorator(new FlatFragmentShader(new Vec3(0.5, 0.3, 0.7)), Light);
-            MainScene.Entities[0] = Entity.CreateSphere(0.5, 50, 50, () => BallLight);
+            MainScene.Entities[0] = Entity.CreateSphere(
+                0.5, 50, 50,
+                () => BallLight
+            );
             //MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
             TextureFragmentShader textureShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap( "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png")));
             HeadLight = new GouraudFragmentShaderDecorator(textureShader, Light);
             MainScene.Entities[1] = new Entity(
                 "C:\\Users\\zbroj\\Desktop\\african_head.obj",
                 "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png",
-                HeadLight
+                new FogFragmentShaderDecorator(HeadLight, CleanColor, 2.5, 2.0)
             );
-            MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(2.5, 0.0, 0.0)));
+            MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(1.5, 0.0, 0.0)));
 
             MainCamera = new Camera() {
                 Fov = 1.0,
@@ -75,12 +80,12 @@ namespace _3D_Graphics {
             a += 0.03;
 
             //MainCamera.Position.X = Math.Sin(a) * -3.0;
-            //MainCamera.Position.Z = Math.Cos(a) * 3.0;
-            //MainCamera.UpdateViewMatrix();
+            MainCamera.Position.Z = Math.Cos(5*a) - 3.0;
+            MainCamera.UpdateViewMatrix();
 
             Light.X = Math.Cos(10 * a + 0.3);
             Light.Z = Math.Sin(10 * a + 0.3);
-            HeadLight.Direction = Light;
+            //HeadLight.Direction = Light;
             BallLight.Direction = Light;
 
             Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
@@ -92,7 +97,7 @@ namespace _3D_Graphics {
 
             //MainScene.Entities[1].Transform(rot);
 
-            DrawingPlane.Clean(new Vec3(0.5, 0.75, 0.25));
+            DrawingPlane.Clean(CleanColor);
             SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(MainCamera, DrawingPlane.Width, DrawingPlane.Height), MainCamera.ClosePlane);
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 

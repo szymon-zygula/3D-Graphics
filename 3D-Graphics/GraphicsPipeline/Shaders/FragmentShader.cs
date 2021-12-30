@@ -105,4 +105,36 @@ namespace _3D_Graphics {
             return intensity * InnerShader.Shade(triangle, bary);
         }
     }
+
+    public class FogFragmentShaderDecorator : IFragmentShader {
+        IFragmentShader InnerShader;
+        Vec3 Color;
+        double OpaqueDistance;
+        double ClearDistance;
+
+        public FogFragmentShaderDecorator(IFragmentShader innerShader, Vec3 color, double opaqueDistance, double clearDistance) {
+            InnerShader = innerShader;
+            Color = color;
+            OpaqueDistance = opaqueDistance;
+            ClearDistance = clearDistance;
+        }
+
+        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+            Vector<double> interpol =
+                triangle.Vertices[0] * bary.X +
+                triangle.Vertices[1] * bary.Y +
+                triangle.Vertices[2] * bary.Z;
+
+            if (interpol[2] >= OpaqueDistance) {
+                return Color;
+            }
+            else if (interpol[2] <= ClearDistance) {
+                return InnerShader.Shade(triangle, bary);
+            }
+
+            double fc = (OpaqueDistance - interpol[2]) / (OpaqueDistance - ClearDistance);
+
+            return fc * InnerShader.Shade(triangle, bary) + (1.0 - fc) * Color;
+        }
+    }
 }
