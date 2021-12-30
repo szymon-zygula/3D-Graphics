@@ -42,13 +42,13 @@ namespace _3D_Graphics {
         }
 
         private static double Differential(Vector<double> v, Vector<double> u) {
-            if (v[1] == u[1]) {
+            if (Math.Round(v[1]) == Math.Round(u[1])) {
                 return double.NaN;
             }
 
             return
-               (u[0] - v[0]) /
-               (u[1] - v[1]);
+               (Math.Round(u[0]) - Math.Round(v[0])) /
+               (Math.Round(u[1]) - Math.Round(v[1]));
         }
 
         private static Vec3 Barycentric(Triangle triangle, int x, int y) {
