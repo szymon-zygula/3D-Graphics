@@ -81,7 +81,7 @@ namespace _3D_Graphics {
                 triangle.Normals[1] * bary.Y +
                 triangle.Normals[2] * bary.Z;
 
-            double intensity = normal * Direction.ToHomogenousDirection() * 2.0;
+            double intensity = -normal * Direction.ToHomogenousDirection() * 2.0;
             return intensity * InnerShader.Shade(triangle, bary);
         }
     }
@@ -101,7 +101,7 @@ namespace _3D_Graphics {
                 triangle.Normals[1] +
                 triangle.Normals[2]).Normalize(2);
 
-            double intensity = normal * Direction.ToHomogenous() * 2.0;
+            double intensity = -normal * Direction.ToHomogenous() * 2.0;
             return intensity * InnerShader.Shade(triangle, bary);
         }
     }

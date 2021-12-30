@@ -65,6 +65,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ArrayUtils.cs" />
+    <Compile Include="GraphicsPipeline\Lights\GloblaLight.cs" />
+    <Compile Include="GraphicsPipeline\Lights\Light.cs" />
+    <Compile Include="GraphicsPipeline\Lights\LightList.cs" />
+    <Compile Include="GraphicsPipeline\Lights\ReflectorLight.cs" />
     <Compile Include="GraphicsPipeline\RenderObjects\Camera.cs" />
     <Compile Include="GraphicsPipeline\RenderObjects\Entity.cs" />
     <Compile Include="GraphicsPipeline\RenderObjects\Triangle.cs" />

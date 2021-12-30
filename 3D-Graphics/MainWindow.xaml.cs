@@ -36,7 +36,7 @@ namespace _3D_Graphics {
             DrawingPlane.Clean(CleanColor);
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
-            Light = new Vec3(0.0, 0.0, -1.0);
+            Light = new Vec3(0.0, 0.0, 1.0);
 
 
             MainScene = new Scene();
