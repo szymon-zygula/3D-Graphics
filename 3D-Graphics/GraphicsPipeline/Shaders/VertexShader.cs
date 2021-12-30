@@ -57,8 +57,8 @@ namespace _3D_Graphics {
 
         private Vector<double> DisplayPerspective(Vector<double> v) {
             return CreateVector.DenseOfArray(new double[4] {
-                Width * (1.0 + v[0]) / 2.0,
-                Height * (1.0 - v[1]) / 2.0,
+                Math.Round(Width * (1.0 + v[0]) / 2.0),
+                Math.Round(Height * (1.0 - v[1]) / 2.0),
                 v[2],
                 1.0
             });

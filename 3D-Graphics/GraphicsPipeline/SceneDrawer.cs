@@ -31,7 +31,7 @@ namespace _3D_Graphics {
 
             xmin = Math.Max(xmin, 0);
             xmax = Math.Min(xmax, plane.Width - 1);
-            for (int x = xmin; x < xmax; ++x) {
+            for (int x = xmin; x <= xmax; ++x) {
                 Vec3 bary = Barycentric(triangle, x, y);
                 double depth = bary.X * triangle.Vertices[0][2] + bary.Y * triangle.Vertices[1][2] + bary.Z * triangle.Vertices[2][2];
                 if(depth < zBuffer[x, y]) {
@@ -42,13 +42,13 @@ namespace _3D_Graphics {
         }
 
         private static double Differential(Vector<double> v, Vector<double> u) {
-            if (v[1] == u[1]) {
+            if (Math.Round(v[1]) == Math.Round(u[1])) {
                 return double.NaN;
             }
 
             return
-               (u[0] - v[0]) /
-               (u[1] - v[1]);
+               (Math.Round(u[0]) - Math.Round(v[0])) /
+               (Math.Round(u[1]) - Math.Round(v[1]));
         }
 
         private static Vec3 Barycentric(Triangle triangle, int x, int y) {
@@ -57,30 +57,26 @@ namespace _3D_Graphics {
                 new Vec3(triangle.Vertices[2][1] - triangle.Vertices[0][1], triangle.Vertices[1][1] - triangle.Vertices[0][1], triangle.Vertices[0][1] - y)
             );
 
-            if (Math.Abs(cross.Y) < 1) {
-                return new Vec3(-1f, 1f, 1f);
-            }
-
             return new Vec3(1f - (cross.X + cross.Y) / cross.Z, cross.Y / cross.Z, cross.X / cross.Z);
         }
 
         public static void FillTriangle(Texture plane, Triangle triangle, double[,] zBuffer) {
-            if (triangle.Vertices[0][1] == triangle.Vertices[1][1] && triangle.Vertices[0][1] == triangle.Vertices[2][1] || !triangle.CorrectWinding()) {
+            if(!triangle.CorrectWinding()) {
                 return;
             }
 
             Vector<double>[] vertices = triangle.VerticesSortedByY();
 
-            int ymin = (int)Math.Round(vertices[0][1]);
-            int ymax = (int)Math.Round(vertices[2][1]);
+            int ymin = (int)vertices[0][1];
+            int ymax = (int)vertices[2][1];
 
             double diff1 = Differential(vertices[0], vertices[2]);
             double diff2 = Differential(vertices[0], vertices[1]);
             double xmin = vertices[0][0];
             double xmax = vertices[0][0];
 
-            for (int y = ymin; y < ymax; y++) { 
-                if(y == Math.Round(vertices[1][1])) {
+            for (int y = ymin; y <= ymax; y++) { 
+                if(y == vertices[1][1]) {
                     xmax = vertices[1][0];
                     diff2 = Differential(vertices[1], vertices[2]);
                 }
