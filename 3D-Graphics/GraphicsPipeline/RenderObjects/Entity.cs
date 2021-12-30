@@ -68,7 +68,7 @@ namespace _3D_Graphics {
             Triangles = new Triangle[faces.Count];
 
             for (int i = 0; i < faces.Count; ++i) {
-                Triangles[i] = new Triangle(new GouraudFragmentShaderDecorator(textureShader, new Vec3(-1, 1.5, 0)));
+                Triangles[i] = new Triangle(new GouraudFragmentShaderDecorator(textureShader, new Vec3(-1.0, 1.0, 0)));
                 //Triangles[i] = new Triangle(new FlatFragmentShader(new Vec3(0.2, 0.1, 0.3) * ((Vec3.Random() / 5.0).X + 0.8)));
 
                 Triangles[i].Vertices[0] = CreateVector.DenseOfArray(new double[] {
@@ -113,6 +113,104 @@ namespace _3D_Graphics {
                 });
                 Triangles[i].TextureCoords[2] = textureCoords[faces[i][7] - 1];
             }
+        }
+
+        public delegate IFragmentShader FragmentShaderGenerator();
+
+        // latitudeSamples nie powinno uwzgledniac biegunow
+        public static Entity CreateSphere(double radius, int latitudeSamples, int longitudeSamples, FragmentShaderGenerator fragmentShaderGenerator) {
+            // Pasy trojkatow rownolegle do rownika, na biegunach czapki
+            Entity sphere = new Entity(longitudeSamples * 2 * latitudeSamples);
+            for(int i = 0; i < sphere.Triangles.Length; ++i) {
+                sphere.Triangles[i] = new Triangle(fragmentShaderGenerator());
+            }
+
+            double latitudeStep = Math.PI / (latitudeSamples + 1);
+            double longitudeStep = 2.0 * Math.PI / longitudeSamples;
+            double latitude = latitudeStep; // bieguny jako przypadki szczegolne
+            double longitude = 0.0;
+
+            // Polaczenie z biegunami
+            for(int i = 0; i < longitudeSamples; ++i) {
+                sphere.Triangles[i].Vertices[0] = CreateVector.DenseOfArray(new double[4] {
+                    0.0, radius, 0.0, 1.0
+                });
+                sphere.Triangles[i].Normals[0] = CreateVector.DenseOfArray(new double[4] {
+                    0.0, radius, 0.0, 0.0
+                });
+
+                sphere.Triangles[i + (latitudeSamples - 1) * longitudeSamples * 2 + longitudeSamples].Vertices[1] = CreateVector.DenseOfArray(new double[4] {
+                    0.0, -radius, 0.0, 1.0
+                });
+                sphere.Triangles[i + (latitudeSamples - 1) * longitudeSamples * 2 + longitudeSamples].Normals[1] = CreateVector.DenseOfArray(new double[4] {
+                    0.0, -radius, 0.0, 0.0
+                });
+            }
+
+            for(int i = 0; i < latitudeSamples; ++i) {
+                for(int j = 0; j < longitudeSamples; ++j) {
+                    Vector<double> pn = CreateVector.DenseOfArray(new double[4] {
+                        Math.Sin(latitude) * Math.Cos(longitude),
+                        Math.Cos(latitude),
+                        Math.Sin(latitude) * Math.Sin(longitude),
+                        0.0
+                    });
+
+                    Vector<double> p = pn * radius;
+                    p[3] = 1.0;
+
+                    int jm1mod = MathUtils.Mod(j - 1, longitudeSamples);
+
+                    if(i == 0) {
+                        sphere.Triangles[jm1mod].Vertices[2] = p.Clone();
+                        sphere.Triangles[j].Vertices[1] = p.Clone();
+                        sphere.Triangles[longitudeSamples + jm1mod].Vertices[2] = p.Clone();
+                        sphere.Triangles[longitudeSamples + j].Vertices[0] = p.Clone();
+                        sphere.Triangles[2 * longitudeSamples + j].Vertices[0] = p.Clone();
+
+                        sphere.Triangles[jm1mod].Normals[2] = pn.Clone();
+                        sphere.Triangles[j].Normals[1] = pn.Clone();
+                        sphere.Triangles[longitudeSamples + jm1mod].Normals[2] = pn.Clone();
+                        sphere.Triangles[longitudeSamples + j].Normals[0] = pn.Clone();
+                        sphere.Triangles[2 * longitudeSamples + j].Normals[0] = pn.Clone();
+                    }
+                    else if(i == latitudeSamples - 1) {
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2 - longitudeSamples + jm1mod].Vertices[1] = p.Clone();
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2  + jm1mod].Vertices[2] = p.Clone();
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2  + j].Vertices[1] = p.Clone();
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2 + longitudeSamples + jm1mod].Vertices[2] = p.Clone();
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2 + longitudeSamples + j].Vertices[0] = p.Clone();
+
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2 - longitudeSamples + jm1mod].Normals[1] = pn.Clone();
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2 + jm1mod].Normals[2] = pn.Clone();
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2 + j].Normals[1] = pn.Clone();
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2 + longitudeSamples + jm1mod].Normals[2] = pn.Clone();
+                        sphere.Triangles[(latitudeSamples - 1) * longitudeSamples * 2 + longitudeSamples + j].Normals[0] = pn.Clone();
+                    }
+                    else {
+                        sphere.Triangles[longitudeSamples * (1 + 2 * (i - 1)) + jm1mod].Vertices[1] = p.Clone();
+                        sphere.Triangles[longitudeSamples * (2 + 2 * (i - 1)) + jm1mod].Vertices[2] = p.Clone();
+                        sphere.Triangles[longitudeSamples * (2 + 2 * (i - 1)) + j].Vertices[1] = p.Clone();
+                        sphere.Triangles[longitudeSamples * (3 + 2 * (i - 1)) + jm1mod].Vertices[2] = p.Clone();
+                        sphere.Triangles[longitudeSamples * (3 + 2 * (i - 1)) + j].Vertices[0] = p.Clone();
+                        sphere.Triangles[longitudeSamples * (4 + 2 * (i - 1)) + j].Vertices[0] = p.Clone();
+
+                        sphere.Triangles[longitudeSamples * (1 + 2 * (i - 1)) + jm1mod].Normals[1] = pn.Clone();
+                        sphere.Triangles[longitudeSamples * (2 + 2 * (i - 1)) + jm1mod].Normals[2] = pn.Clone();
+                        sphere.Triangles[longitudeSamples * (2 + 2 * (i - 1)) + j].Normals[1] = pn.Clone();
+                        sphere.Triangles[longitudeSamples * (3 + 2 * (i - 1)) + jm1mod].Normals[2] = pn.Clone();
+                        sphere.Triangles[longitudeSamples * (3 + 2 * (i - 1)) + j].Normals[0] = pn.Clone();
+                        sphere.Triangles[longitudeSamples * (4 + 2 * (i - 1)) + j].Normals[0] = pn.Clone();
+                    }
+
+                    longitude += longitudeStep;
+                }
+
+                longitude = 0.0;
+                latitude += latitudeStep;
+            }
+
+            return sphere;
         }
 
         public void Transform(Matrix<double> transform) {

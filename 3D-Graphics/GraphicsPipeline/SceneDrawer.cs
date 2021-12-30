@@ -31,7 +31,7 @@ namespace _3D_Graphics {
 
             xmin = Math.Max(xmin, 0);
             xmax = Math.Min(xmax, plane.Width - 1);
-            for (int x = xmin; x <= xmax; ++x) {
+            for (int x = xmin; x < xmax; ++x) {
                 Vec3 bary = Barycentric(triangle, x, y);
                 double depth = bary.X * triangle.Vertices[0][2] + bary.Y * triangle.Vertices[1][2] + bary.Z * triangle.Vertices[2][2];
                 if(depth < zBuffer[x, y]) {

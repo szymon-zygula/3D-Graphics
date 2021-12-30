@@ -18,6 +18,10 @@ namespace _3D_Graphics {
             return new FlatFragmentShader(Vec3.Random());
         }
 
+        public static FlatFragmentShader RandomToned(Vec3 color) {
+            return new FlatFragmentShader(color * MathUtils.Random(0.8, 1.0));
+        }
+
         public FlatFragmentShader(Vec3 color) {
             Color = color;
         }

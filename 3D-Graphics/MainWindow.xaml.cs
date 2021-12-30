@@ -33,7 +33,8 @@ namespace _3D_Graphics {
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[1];
-            MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
+            MainScene.Entities[0] = Entity.CreateSphere(0.5, 50, 50, () => new GouraudFragmentShaderDecorator(FlatFragmentShader.RandomToned(new Vec3(0.5, 0.3, 0.7)), new Vec3(-1.0, 1.0, 0.0)));
+            //MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
             //MainScene.Entities[1] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
             MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(1.0, 0.0, 0.0)));
 
@@ -48,7 +49,7 @@ namespace _3D_Graphics {
             MainCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
             MainCamera.UpdateViewMatrix();
 
-            a = 0.03;
+            a = 0.05;
             frames = 0;
 
             CompositionTarget.Rendering += RenderFrame;
@@ -66,12 +67,12 @@ namespace _3D_Graphics {
 
             Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
                 { 1, 0, 0, 0 },
-                { 0, Math.Cos(0.03),  -Math.Sin(0.03), 0},
-                { 0, Math.Sin(0.03),  Math.Cos(0.03), 0},
-                { 0, 0, 0, 1}
+                { 0, Math.Cos(-0.28),  -Math.Sin(-0.28), 0},
+                { 0, Math.Sin(-0.28),  Math.Cos(-0.28), 0},
+                { 0, 0, 0, 1 }
             });
 
-            MainScene.Entities[0].Transform(rot);
+            //MainScene.Entities[1].Transform(rot);
 
             DrawingPlane.Clean(new Vec3(0.5, 0.75, 0.25));
             SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(MainCamera, DrawingPlane.Width, DrawingPlane.Height));
@@ -80,7 +81,7 @@ namespace _3D_Graphics {
             frames += 1;
             if(frames % 100 == 0) {
                 sw.Stop();
-                MessageBox.Show($"Average FPS: {(double)frames / (double)sw.ElapsedMilliseconds * 1000}");
+                //MessageBox.Show($"Average FPS: {(double)frames / (double)sw.ElapsedMilliseconds * 1000}");
                 sw.Start();
             }
         }
