@@ -32,9 +32,9 @@ namespace _3D_Graphics {
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
             MainScene = new Scene();
-            MainScene.Entities = new Entity[2];
+            MainScene.Entities = new Entity[1];
             MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
-            MainScene.Entities[1] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
+            //MainScene.Entities[1] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
             MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(1.0, 0.0, 0.0)));
 
             MainCamera = new Camera() {
@@ -66,8 +66,8 @@ namespace _3D_Graphics {
 
             Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
                 { 1, 0, 0, 0 },
-                { 0, Math.Cos(0.05),  -Math.Sin(0.05), 0},
-                { 0, Math.Sin(0.05),  Math.Cos(0.05), 0},
+                { 0, Math.Cos(0.03),  -Math.Sin(0.03), 0},
+                { 0, Math.Sin(0.03),  Math.Cos(0.03), 0},
                 { 0, 0, 0, 1}
             });
 

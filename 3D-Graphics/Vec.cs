@@ -54,6 +54,10 @@ namespace _3D_Graphics {
             Z = mathV[2];
         }
 
+        public Vec3 Round() {
+            return new Vec3(Math.Round(X), Math.Round(Y), Math.Round(Z));
+        }
+
         public Vector<double> ToHomogenous() {
             return CreateVector.DenseOfArray(new double[4] {
                 X, Y, Z, 1.0

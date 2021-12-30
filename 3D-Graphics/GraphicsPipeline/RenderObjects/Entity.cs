@@ -67,9 +67,9 @@ namespace _3D_Graphics {
             TextureFragmentShader textureShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(texturePath)));
             Triangles = new Triangle[faces.Count];
 
-            // Z negowany by przejsc do ukladu prawoskretnego
             for (int i = 0; i < faces.Count; ++i) {
                 Triangles[i] = new Triangle(new GouraudFragmentShaderDecorator(textureShader, new Vec3(-1, 1.5, 0)));
+                //Triangles[i] = new Triangle(new FlatFragmentShader(new Vec3(0.2, 0.1, 0.3) * ((Vec3.Random() / 5.0).X + 0.8)));
 
                 Triangles[i].Vertices[0] = CreateVector.DenseOfArray(new double[] {
                     vertices[faces[i][0] - 1][0],

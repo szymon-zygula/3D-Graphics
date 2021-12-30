@@ -14,6 +14,10 @@ namespace _3D_Graphics {
     public class FlatFragmentShader : IFragmentShader {
         readonly Vec3 Color;
 
+        public static FlatFragmentShader Random() {
+            return new FlatFragmentShader(Vec3.Random());
+        }
+
         public FlatFragmentShader(Vec3 color) {
             Color = color;
         }
