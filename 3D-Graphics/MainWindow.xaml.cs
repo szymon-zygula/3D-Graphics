@@ -36,12 +36,12 @@ namespace _3D_Graphics {
             MainScene.Entities[0] = Entity.CreateSphere(0.5, 50, 50, () => new GouraudFragmentShaderDecorator(FlatFragmentShader.RandomToned(new Vec3(0.5, 0.3, 0.7)), new Vec3(-1.0, 1.0, 0.0)));
             //MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
             //MainScene.Entities[1] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
-            MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(1.0, 0.0, 0.0)));
+            MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(2.5, 0.0, 0.0)));
 
             MainCamera = new Camera() {
                 Fov = 1.0,
-                ClosePlane = 0.1,
-                FarPlane = 0.9,
+                ClosePlane = 0.5,
+                FarPlane = 0.95,
                 ObservedPoint = new Vec3(0.0, 0.0, 0.0),
                 Position = new Vec3(0.0, 0.0, -3.0),
                 Up = new Vec3(0.0, 1.0, 0.0)
@@ -75,7 +75,7 @@ namespace _3D_Graphics {
             //MainScene.Entities[1].Transform(rot);
 
             DrawingPlane.Clean(new Vec3(0.5, 0.75, 0.25));
-            SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(MainCamera, DrawingPlane.Width, DrawingPlane.Height));
+            SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(MainCamera, DrawingPlane.Width, DrawingPlane.Height), MainCamera.ClosePlane);
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
             frames += 1;

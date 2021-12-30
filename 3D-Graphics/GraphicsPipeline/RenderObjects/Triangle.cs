@@ -26,6 +26,20 @@ namespace _3D_Graphics {
             return cross.Z < 0;
         }
 
+        private bool VertexWithinVisibleWindow(double width, double height, int v, double closePlane) {
+            return
+                Vertices[v][0] >= 0 && Vertices[v][1] >= 0 &&
+                Vertices[v][0] < width && Vertices[v][1] < height &&
+                Vertices[v][2] >= closePlane;
+        }
+
+        public bool WithinVisibleWindow(double width, double height, double closePlane) {
+            return
+                VertexWithinVisibleWindow(width, height, 0, closePlane) ||
+                VertexWithinVisibleWindow(width, height, 1, closePlane) ||
+                VertexWithinVisibleWindow(width, height, 2, closePlane);
+        }
+
         public Vector<double>[] VerticesSortedByY() {
             Vector<double>[] vertices = new Vector<double>[3];
             Array.Copy(Vertices, vertices, 3);
