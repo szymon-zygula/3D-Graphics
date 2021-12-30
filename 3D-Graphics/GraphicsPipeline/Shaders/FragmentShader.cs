@@ -68,11 +68,11 @@ namespace _3D_Graphics {
 
     public class GouraudFragmentShaderDecorator : IFragmentShader {
         IFragmentShader InnerShader;
-        Vector<double> Direction;
+        public Vec3 Direction;
 
         public GouraudFragmentShaderDecorator(IFragmentShader innerShader, Vec3 direction) {
             InnerShader = innerShader;
-            Direction = direction.ToHomogenousDirection();
+            Direction = direction;
         }
 
         public Vec3 Shade(Triangle triangle, Vec3 bary) {
@@ -81,7 +81,27 @@ namespace _3D_Graphics {
                 triangle.Normals[1] * bary.Y +
                 triangle.Normals[2] * bary.Z;
 
-            double intensity = normal * Direction * 2.0;
+            double intensity = normal * Direction.ToHomogenousDirection() * 2.0;
+            return intensity * InnerShader.Shade(triangle, bary);
+        }
+    }
+
+    public class FlatLightFragmentShaderDecorator : IFragmentShader {
+        IFragmentShader InnerShader;
+        public Vec3 Direction;
+
+        public FlatLightFragmentShaderDecorator(IFragmentShader innerShader, Vec3 direction) {
+            InnerShader = innerShader;
+            Direction = direction;
+        }
+
+        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+            Vector<double> normal = (
+                triangle.Normals[0] +
+                triangle.Normals[1] +
+                triangle.Normals[2]).Normalize(2);
+
+            double intensity = normal * Direction.ToHomogenous() * 2.0;
             return intensity * InnerShader.Shade(triangle, bary);
         }
     }

@@ -16,7 +16,7 @@ namespace _3D_Graphics {
             Triangles = new Triangle[triangleCount];
         }
 
-        public Entity(string modelPath, string texturePath) {
+        public Entity(string modelPath, string texturePath, IFragmentShader fragmentShader) {
             List<string[]> lines = new List<string[]>();
             List<int[]> faces = new List<int[]>();
             List<double[]> vertices = new List<double[]>();
@@ -64,12 +64,10 @@ namespace _3D_Graphics {
                         break;
                 }
             }
-            TextureFragmentShader textureShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(texturePath)));
             Triangles = new Triangle[faces.Count];
 
             for (int i = 0; i < faces.Count; ++i) {
-                Triangles[i] = new Triangle(new GouraudFragmentShaderDecorator(textureShader, new Vec3(-1.0, 1.0, 0)));
-                //Triangles[i] = new Triangle(new FlatFragmentShader(new Vec3(0.2, 0.1, 0.3) * ((Vec3.Random() / 5.0).X + 0.8)));
+                Triangles[i] = new Triangle(fragmentShader);
 
                 Triangles[i].Vertices[0] = CreateVector.DenseOfArray(new double[] {
                     vertices[faces[i][0] - 1][0],
@@ -136,14 +134,14 @@ namespace _3D_Graphics {
                     0.0, radius, 0.0, 1.0
                 });
                 sphere.Triangles[i].Normals[0] = CreateVector.DenseOfArray(new double[4] {
-                    0.0, radius, 0.0, 0.0
+                    0.0, 1.0, 0.0, 0.0
                 });
 
                 sphere.Triangles[i + (latitudeSamples - 1) * longitudeSamples * 2 + longitudeSamples].Vertices[1] = CreateVector.DenseOfArray(new double[4] {
                     0.0, -radius, 0.0, 1.0
                 });
                 sphere.Triangles[i + (latitudeSamples - 1) * longitudeSamples * 2 + longitudeSamples].Normals[1] = CreateVector.DenseOfArray(new double[4] {
-                    0.0, -radius, 0.0, 0.0
+                    0.0, -1.0, 0.0, 0.0
                 });
             }
 
@@ -221,8 +219,11 @@ namespace _3D_Graphics {
                 triangle.Vertices[2] = transform * triangle.Vertices[2];
 
                 triangle.Normals[0] = invTrans * triangle.Normals[0];
+                triangle.Normals[0][3] = 0;
                 triangle.Normals[1] = invTrans * triangle.Normals[1];
+                triangle.Normals[1][3] = 0;
                 triangle.Normals[2] = invTrans * triangle.Normals[2];
+                triangle.Normals[2][3] = 0;
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace _3D_Graphics {
@@ -40,8 +41,11 @@ namespace _3D_Graphics {
 
             projectedTriangle.TextureCoords = triangle.TextureCoords;
             projectedTriangle.Normals[0] = PerspectiveNormal(triangle.Normals[0]);
+            projectedTriangle.Normals[0][3] = 0;
             projectedTriangle.Normals[1] = PerspectiveNormal(triangle.Normals[1]);
+            projectedTriangle.Normals[1][3] = 0;
             projectedTriangle.Normals[2] = PerspectiveNormal(triangle.Normals[2]);
+            projectedTriangle.Normals[2][3] = 0;
 
             return projectedTriangle;
         }
@@ -52,6 +56,8 @@ namespace _3D_Graphics {
         }
         private Vector<double> PerspectiveNormal(Vector<double> n) {
             Vector<double> Nc = Camera.InvTransProjectionMatrix * n;
+            Nc[2] = Nc[3];
+            Nc[3] = 0;
             return Nc;
         }
 
