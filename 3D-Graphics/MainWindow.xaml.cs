@@ -1,113 +1,116 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace _3D_Graphics {
     public partial class MainWindow : Window {
+        Stopwatch FPSStopWatch;
+
         Texture DrawingPlane;
-        double a;
-        int frames;
-        Stopwatch sw;
         Scene MainScene;
-        Camera MainCamera;
-        Vec3 SomeLightDirection;
-        IFragmentShader HeadShader;
-        IFragmentShader BallShader;
-        Vec3 CleanColor;
+
+        Camera CurrentCamera;
+        Camera StaticCamera;
+        Camera StaticFollowerCamera;
+        Camera DynamicFollowerCamera;
+
         LightList Lights;
+        Vec3 CleanColor;
 
-        public MainWindow() {
-            InitializeComponent();
-
+        private void InitDrawingSpace() {
+            CleanColor = new Vec3(0.0, 0.0, 1.0);
             DrawingPlane = new Texture((int)ImageCanvas.Width, (int)ImageCanvas.Height);
-            CleanColor = new Vec3(0.5, 0.75, 0.25);
             DrawingPlane.Clean(CleanColor);
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
-            MainCamera = new Camera() {
+            CompositionTarget.Rendering += RenderFrame;
+
+            FPSStopWatch = new Stopwatch();
+            FPSStopWatch.Start();
+        }
+
+        private void InitCameras() {
+            StaticCamera = new Camera() {
                 Fov = 1.0,
                 ClosePlane = 0.5,
                 FarPlane = 0.95,
                 ObservedPoint = new Vec3(0.0, 0.0, 0.0),
-                Position = new Vec3(-3.0, -0.0, -1.0),
+                Position = new Vec3(-3.0, 1.0, -4.0),
                 Up = new Vec3(0.0, 1.0, 0.0)
             };
-            MainCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
-            MainCamera.UpdateViewMatrix();
+            StaticCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
+            StaticCamera.UpdateViewMatrix();
 
+            StaticFollowerCamera = new Camera() {
+                Fov = 1.0,
+                ClosePlane = 0.5,
+                FarPlane = 0.95,
+                ObservedPoint = new Vec3(0.0, 0.0, 0.0),
+                Position = new Vec3(-3.0, 1.0, -1.0),
+                Up = new Vec3(0.0, 1.0, 0.0)
+            };
+            StaticFollowerCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
+            StaticFollowerCamera.UpdateViewMatrix();
+
+            DynamicFollowerCamera = new Camera() {
+                Fov = 1.0,
+                ClosePlane = 0.5,
+                FarPlane = 0.95,
+                ObservedPoint = new Vec3(0.0, 0.0, 0.0),
+                Position = new Vec3(-3.0, 1.0, -1.0),
+                Up = new Vec3(0.0, 1.0, 0.0)
+            };
+            DynamicFollowerCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
+            DynamicFollowerCamera.UpdateViewMatrix();
+
+            CurrentCamera = StaticCamera;
+        }
+
+        private void InitLights() {
             Lights = new LightList();
             Lights.Lights.Add(new GlobalLight(new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0)));
             Lights.Lights.Add(new ReflectorLight(new Vec3(0.0, 0.0, -2.0), new Vec3(1.0, 1.0, 1.0), Math.PI / 10.0, new Vec3(0.0, 2.0, 2.0)));
+        }
 
+        private void InitScene() {
             MainScene = new Scene();
             MainScene.Entities = new Entity[2];
-            BallShader = new PhongFragmentShaderDecorator(new FlatFragmentShader(new Vec3(0.5, 0.3, 0.7)), Lights, new Vec3(0.1, 0.1, 0.1), 3.6, 0.45, 75.0, MainCamera);
+            IFragmentShader ballShader = new PhongFragmentShaderDecorator(new FlatFragmentShader(new Vec3(0.5, 0.3, 0.7)), Lights, new Vec3(0.1, 0.1, 0.1), 3.6, 0.45, 75.0, CurrentCamera);
             MainScene.Entities[0] = Entity.CreateSphere(
                 0.5, 50, 50,
-                () => BallShader
+                () => ballShader
             );
-            //MainScene.Entities[0] = new Entity("C:\\Users\\zbroj\\Desktop\\african_head.obj", "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png");
-            TextureFragmentShader textureShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap( "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png")));
-            HeadShader = new PhongFragmentShaderDecorator(textureShader, Lights, new Vec3(0.1, 0.1, 0.1), 3.4, 0.6, 30.0, MainCamera);
+            TextureFragmentShader textureShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap( ".\\Resources\\african_head_diffuse.png")));
+            IFragmentShader headShader = new PhongFragmentShaderDecorator(textureShader, Lights, new Vec3(0.1, 0.1, 0.1), 3.4, 0.6, 30.0, CurrentCamera);
             MainScene.Entities[1] = new Entity(
-                "C:\\Users\\zbroj\\Desktop\\african_head.obj",
-                "C:\\Users\\zbroj\\Desktop\\african_head_diffuse.png",
-                new FogFragmentShaderDecorator(HeadShader, CleanColor, 10.0, 5.5)
+                ".\\Resources\\african_head.obj",
+                new FogFragmentShaderDecorator(headShader, CleanColor, 2.9, 2.7)
             );
             MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(1.5, 0.0, 0.0)));
+        }
 
-            a = 0.05;
-            frames = 0;
+        public MainWindow() {
+            InitializeComponent();
 
-            CompositionTarget.Rendering += RenderFrame;
+            InitDrawingSpace();
+            InitCameras();
+            InitLights();
+            InitScene();
+        }
 
-            sw = new Stopwatch();
-            sw.Start();
+        private void UpdateFPSTitle() {
+            FPSStopWatch.Stop();
+            Title = $"FPS = {1.0 / FPSStopWatch.ElapsedMilliseconds * 1000}";
+            FPSStopWatch.Restart();
         }
 
         private void RenderFrame(object sender, EventArgs e) {
-            a += 0.03;
-
-            MainCamera.Position.X = Math.Sin(5 * a) * -3.0;
-            MainCamera.Position.Z = -3.3;
-            MainCamera.UpdateViewMatrix();
-
-            SomeLightDirection.X = Math.Cos(a + 0.3);
-            SomeLightDirection.Z = Math.Sin(a + 0.3);
-            (Lights.Lights[1] as ReflectorLight).Direction = SomeLightDirection;
-
-            Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
-                { 1, 0, 0, 0 },
-                { 0, Math.Cos(-0.28),  -Math.Sin(-0.28), 0},
-                { 0, Math.Sin(-0.28),  Math.Cos(-0.28), 0},
-                { 0, 0, 0, 1 }
-            });
-
-            //MainScene.Entities[1].Transform(rot);
-
             DrawingPlane.Clean(CleanColor);
-            SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(MainCamera, DrawingPlane.Width, DrawingPlane.Height), MainCamera.ClosePlane);
+            SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(CurrentCamera, DrawingPlane.Width, DrawingPlane.Height), CurrentCamera.ClosePlane);
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
-            frames += 1;
-            if(frames % 60 == 0) {
-                sw.Stop();
-                //MessageBox.Show($"Average FPS: {(double)frames / (double)sw.ElapsedMilliseconds * 1000}");
-                sw.Start();
-            }
+            UpdateFPSTitle();
         }
 
         private void FlatShadeRadioButton_Checked(object sender, RoutedEventArgs e) {

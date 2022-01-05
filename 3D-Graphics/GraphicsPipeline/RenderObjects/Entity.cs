@@ -16,7 +16,7 @@ namespace _3D_Graphics {
             Triangles = new Triangle[triangleCount];
         }
 
-        public Entity(string modelPath, string texturePath, IFragmentShader fragmentShader) {
+        public Entity(string modelPath, IFragmentShader fragmentShader) {
             List<string[]> lines = new List<string[]>();
             List<int[]> faces = new List<int[]>();
             List<double[]> vertices = new List<double[]>();
