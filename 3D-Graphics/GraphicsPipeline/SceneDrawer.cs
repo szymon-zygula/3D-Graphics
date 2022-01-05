@@ -14,7 +14,24 @@ namespace _3D_Graphics {
 
             for (int i = 0; i < scene.Entities.Length; ++i) {
                 for (int j = 0; j < scene.Entities[i].Triangles.Length; ++j) {
-                    FillTriangle(texture, vertexShader.Shade(scene.Entities[i].Triangles[j]), scene.Entities[i].Triangles[j], zBuffer, closePlane);
+                    if(scene.Entities[i].LocalTransform != null) {
+                        FillTriangle(
+                            texture,
+                            vertexShader.Shade(scene.Entities[i].LocalTransform.Shade(scene.Entities[i].Triangles[j])),
+                            scene.Entities[i].LocalTransform.Shade(scene.Entities[i].Triangles[j]),
+                            zBuffer,
+                            closePlane
+                        );
+                    }
+                    else {
+                        FillTriangle(
+                            texture,
+                            vertexShader.Shade(scene.Entities[i].Triangles[j]),
+                            scene.Entities[i].Triangles[j],
+                            zBuffer,
+                            closePlane
+                        );
+                    }
                 }
             }
         }

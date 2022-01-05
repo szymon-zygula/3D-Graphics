@@ -12,6 +12,30 @@ namespace _3D_Graphics {
         }
     }
 
+    public class TransformVertexShader : IVertexShader {
+        Matrix<double> Transform;
+        Matrix<double> InvTransTransform;
+
+        public TransformVertexShader(Matrix<double> transform) {
+            Transform = transform;
+            InvTransTransform = transform.Inverse().Transpose();
+        }
+
+        public Triangle Shade(Triangle triangle) {
+            Triangle transformedTriangle = new Triangle(triangle.FragmentShader);
+
+            transformedTriangle.Vertices[0] = Transform * triangle.Vertices[0];
+            transformedTriangle.Vertices[1] = Transform * triangle.Vertices[1];
+            transformedTriangle.Vertices[2] = Transform * triangle.Vertices[2];
+
+            transformedTriangle.Normals[0] = InvTransTransform * triangle.Normals[0];
+            transformedTriangle.Normals[1] = InvTransTransform * triangle.Normals[1];
+            transformedTriangle.Normals[2] = InvTransTransform * triangle.Normals[2];
+
+            return transformedTriangle;
+        }
+    }
+
     public class ProjectionVertexShader : IVertexShader {
         Camera Camera;
         double Width;

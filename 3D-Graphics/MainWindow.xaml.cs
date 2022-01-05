@@ -1,10 +1,23 @@
-﻿using System;
+﻿using MathNet.Numerics.LinearAlgebra;
+using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 
 namespace _3D_Graphics {
     public partial class MainWindow : Window {
+        double TimeMeasure = 0.0;
+        const double TIME_DELTA = 0.001;
+
+        const string FLOOR_MODEL = "Resources\\floor.obj";
+        const string FLOOR_TEXTURE = "Resources\\floor_diffuse.png";
+        const string BODY_MODEL = "Resources\\body.obj";
+        const string BODY_TEXTURE = "Resources\\body_diffuse.png";
+        const string HEAD_MODEL = "Resources\\african_head.obj";
+        const string HEAD_TEXTURE = "Resources\\african_head_diffuse.png";
+        const string DIABLO_MODEL = "Resources\\diablo.obj";
+        const string DIABLO_TEXTURE = "Resources\\diablo_diffuse.png";
+
         Stopwatch FPSStopWatch;
 
         Texture DrawingPlane;
@@ -14,12 +27,26 @@ namespace _3D_Graphics {
         Camera StaticCamera;
         Camera StaticFollowerCamera;
         Camera DynamicFollowerCamera;
+        Vec3 StaticCameraPosition = new Vec3(3.0, 3.0, -3.0);
 
         LightList Lights;
-        Vec3 CleanColor;
+        Vec3 CleanColor = new Vec3(0.0, 0.0, 0.0);
+
+        Entity Body;
+        IFragmentShader BodyShader;
+        Entity Ball;
+        IFragmentShader BallShader;
+        Entity Diablo;
+        IFragmentShader DiabloShader;
+
+        Vec3 AmbientLight = new Vec3(0.5, 0.5, 0.5);
+        ReflectorLight StaticReflector;
+        ReflectorLight DynamicReflector;
+
+        double FogFar = 5.0;
+        double FogClose = 1.0;
 
         private void InitDrawingSpace() {
-            CleanColor = new Vec3(0.0, 0.0, 1.0);
             DrawingPlane = new Texture((int)ImageCanvas.Width, (int)ImageCanvas.Height);
             DrawingPlane.Clean(CleanColor);
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
@@ -36,7 +63,7 @@ namespace _3D_Graphics {
                 ClosePlane = 0.5,
                 FarPlane = 0.95,
                 ObservedPoint = new Vec3(0.0, 0.0, 0.0),
-                Position = new Vec3(-3.0, 1.0, -4.0),
+                Position = StaticCameraPosition,
                 Up = new Vec3(0.0, 1.0, 0.0)
             };
             StaticCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
@@ -47,7 +74,7 @@ namespace _3D_Graphics {
                 ClosePlane = 0.5,
                 FarPlane = 0.95,
                 ObservedPoint = new Vec3(0.0, 0.0, 0.0),
-                Position = new Vec3(-3.0, 1.0, -1.0),
+                Position = StaticCameraPosition,
                 Up = new Vec3(0.0, 1.0, 0.0)
             };
             StaticFollowerCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
@@ -68,26 +95,52 @@ namespace _3D_Graphics {
         }
 
         private void InitLights() {
+            DynamicReflector = new ReflectorLight(new Vec3(0.0, 0.0, -2.0), new Vec3(0.0, 0.0, 1.0), Math.PI / 30.0, new Vec3(10.0, 10.0, 2.0));
+
             Lights = new LightList();
-            Lights.Lights.Add(new GlobalLight(new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0)));
-            Lights.Lights.Add(new ReflectorLight(new Vec3(0.0, 0.0, -2.0), new Vec3(1.0, 1.0, 1.0), Math.PI / 10.0, new Vec3(0.0, 2.0, 2.0)));
+            Lights.Lights.Add(DynamicReflector);
+        }
+
+        private void InitBody() {
+
+        }
+
+        private IFragmentShader ApplyFog(IFragmentShader shader) {
+            return new FogFragmentShaderDecorator(shader, CleanColor, FogFar, FogClose);
+        }
+
+        private void InitDiablo() {
+            DiabloShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(DIABLO_TEXTURE)));
+
+            IFragmentShader currentDiabloShader = new PhongFragmentShaderDecorator(DiabloShader, Lights, AmbientLight, 3.4, 0.6, 30.0, CurrentCamera);
+
+            Diablo = new Entity(
+                DIABLO_MODEL,
+                ApplyFog(currentDiabloShader)
+            );
+        }
+
+        private void InitBall() {
+            BallShader = new FlatFragmentShader(new Vec3(0.5, 0.3, 0.7));
+
+            IFragmentShader currentBallShader = new PhongFragmentShaderDecorator(BallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera);
+
+            Ball = Entity.CreateSphere(
+                0.5, 50, 50,
+                () => ApplyFog(currentBallShader)
+            );
+            Ball.Transform(MatrixUtils.TranslateMatrix(new Vec3(1.5, 0.0, 0.0)));
         }
 
         private void InitScene() {
+            InitBody();
+            InitDiablo();
+            InitBall();
+
             MainScene = new Scene();
-            MainScene.Entities = new Entity[2];
-            IFragmentShader ballShader = new PhongFragmentShaderDecorator(new FlatFragmentShader(new Vec3(0.5, 0.3, 0.7)), Lights, new Vec3(0.1, 0.1, 0.1), 3.6, 0.45, 75.0, CurrentCamera);
-            MainScene.Entities[0] = Entity.CreateSphere(
-                0.5, 50, 50,
-                () => ballShader
-            );
-            TextureFragmentShader textureShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap( ".\\Resources\\african_head_diffuse.png")));
-            IFragmentShader headShader = new PhongFragmentShaderDecorator(textureShader, Lights, new Vec3(0.1, 0.1, 0.1), 3.4, 0.6, 30.0, CurrentCamera);
-            MainScene.Entities[1] = new Entity(
-                ".\\Resources\\african_head.obj",
-                new FogFragmentShaderDecorator(headShader, CleanColor, 2.9, 2.7)
-            );
-            MainScene.Entities[0].Transform(MatrixUtils.TranslateMatrix(new Vec3(1.5, 0.0, 0.0)));
+            MainScene.Entities = new Entity[] {
+                Ball, Diablo
+            };
         }
 
         public MainWindow() {
@@ -105,11 +158,32 @@ namespace _3D_Graphics {
             FPSStopWatch.Restart();
         }
 
+        private void MoveDiablo() {
+            double t = TimeMeasure * 200;
+            Matrix<double> rotation = CreateMatrix.DenseOfArray(new double[4, 4] {
+                { Math.Cos(t), 0, -Math.Sin(t), 0 },
+                { 0, 1, 0, 0 },
+                { Math.Sin(t), 0, Math.Cos(t), 0 },
+                { 0, 0, 0, 1 }
+            });
+
+            Matrix<double> translation = MatrixUtils.TranslateMatrix(2.0 * new Vec3(Math.Cos(t / 4.0), 0.0, 2.0 * Math.Sin(t / 4.0)));
+
+            Diablo.LocalTransform = new TransformVertexShader(translation * rotation);
+        }
+
+        private void ApplyTransforms() {
+            MoveDiablo();
+        }
+
         private void RenderFrame(object sender, EventArgs e) {
+            ApplyTransforms();
+
             DrawingPlane.Clean(CleanColor);
             SceneDrawer.DrawOnto(MainScene, DrawingPlane, new ProjectionVertexShader(CurrentCamera, DrawingPlane.Width, DrawingPlane.Height), CurrentCamera.ClosePlane);
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
+            TimeMeasure += TIME_DELTA;
             UpdateFPSTitle();
         }
 

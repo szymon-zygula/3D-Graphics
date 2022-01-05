@@ -7,6 +7,7 @@ namespace _3D_Graphics {
     public class Entity {
         public Triangle[] Triangles;
         public Texture Texture;
+        public IVertexShader LocalTransform;
 
         public Entity(int triangleCount) {
             Triangles = new Triangle[triangleCount];
@@ -21,12 +22,13 @@ namespace _3D_Graphics {
 
             foreach(string line in File.ReadLines(modelPath)) {
                 string[] parsed = line.Split(' ', '/');
-                if(parsed.Length == 0 || parsed[0].Length == 0 || parsed[0][0] == '#') {
+                if(parsed.Length == 0 || parsed.Length == 1 || parsed[0].Length == 0 || parsed[0][0] == '#') {
                     continue;
                 }
 
                 lines.Add(parsed);
 
+                int offset = parsed[1].Length == 0 ? 1 : 0;
                 switch(parsed[0]) {
                     case "f":
                         faces.Add(new int[] {
@@ -42,13 +44,15 @@ namespace _3D_Graphics {
                         break;
                     case "vt":
                         textureCoords.Add(new Vec2 (
-                            double.Parse(parsed[2]),
-                            double.Parse(parsed[3])
+                            double.Parse(parsed[1 + offset]),
+                            double.Parse(parsed[2 + offset])
                         ));
                         break;
                     case "vn":
                         normals.Add(new double[] {
-                            double.Parse(parsed[2]), double.Parse(parsed[3]), double.Parse(parsed[4])
+                            double.Parse(parsed[1 + offset]),
+                            double.Parse(parsed[2 + offset]),
+                            double.Parse(parsed[3 + offset])
                         });
                         break;
                     case "g":
