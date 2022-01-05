@@ -130,6 +130,14 @@ namespace _3D_Graphics {
             );
         }
 
+        public static Vec3 CoefficientProduct(Vec3 u, Vec3 v) {
+            return new Vec3(
+                u.X * v.X,
+                u.Y * v.Y,
+                u.Z * v.Z
+            );
+        }
+
         public static Vec3 operator +(Vec3 u) => u;
         public static Vec3 operator -(Vec3 u) => new Vec3(-u.X, -u.Y, -u.Z);
         public static Vec3 operator +(Vec3 u, Vec3 v) => new Vec3(u.X + v.X, u.Y + v.Y, u.Z + v.Z);

@@ -79,11 +79,11 @@ namespace _3D_Graphics {
 
     public class GouraudFragmentShaderDecorator : IFragmentShader {
         IFragmentShader InnerShader;
-        public Vec3 Direction;
+        public LightList Lights;
 
-        public GouraudFragmentShaderDecorator(IFragmentShader innerShader, Vec3 direction) {
+        public GouraudFragmentShaderDecorator(IFragmentShader innerShader, LightList lightList) {
             InnerShader = innerShader;
-            Direction = direction;
+            Lights = lightList;
         }
 
         public Vec3 Shade(Triangle triangle, Vec3 bary) {
@@ -92,18 +92,27 @@ namespace _3D_Graphics {
                 triangle.Normals[1] * bary.Y +
                 triangle.Normals[2] * bary.Z;
 
-            double intensity = -normal * Direction.ToHomogenousDirection() * 2.0;
-            return intensity * InnerShader.Shade(triangle, bary);
+            Vec3 point = new Vec3(
+                triangle.Vertices[0] * bary.X +
+                triangle.Vertices[1] * bary.Y +
+                triangle.Vertices[2] * bary.Z);
+
+            Vec3 color = new Vec3(0.0, 0.0, 0.0);
+            foreach(Light light in Lights.Lights) {
+                double intensity = -normal * light.GetDirectionTo(point).ToHomogenousDirection() * 2.0;
+                color += light.Color * intensity;
+            }
+            return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary));
         }
     }
 
     public class FlatLightFragmentShaderDecorator : IFragmentShader {
         IFragmentShader InnerShader;
-        public Vec3 Direction;
+        public LightList Lights;
 
-        public FlatLightFragmentShaderDecorator(IFragmentShader innerShader, Vec3 direction) {
+        public FlatLightFragmentShaderDecorator(IFragmentShader innerShader, LightList lights) {
             InnerShader = innerShader;
-            Direction = direction;
+            Lights = lights;
         }
 
         public Vec3 Shade(Triangle triangle, Vec3 bary) {
@@ -112,8 +121,18 @@ namespace _3D_Graphics {
                 triangle.Normals[1] +
                 triangle.Normals[2]).Normalize(2);
 
-            double intensity = -normal * Direction.ToHomogenous() * 2.0;
-            return intensity * InnerShader.Shade(triangle, bary);
+            Vec3 point = new Vec3(
+                triangle.Vertices[0] +
+                triangle.Vertices[1] +
+                triangle.Vertices[2]
+            ) / 3.0;
+
+            Vec3 color = new Vec3(0.0, 0.0, 0.0);
+            foreach(Light light in Lights.Lights) {
+                double intensity = -normal * light.GetDirectionTo(point).ToHomogenousDirection() * 2.0;
+                color += light.Color * intensity;
+            }
+            return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary));
         }
     }
 

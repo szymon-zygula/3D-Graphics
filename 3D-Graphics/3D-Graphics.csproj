@@ -65,7 +65,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ArrayUtils.cs" />
-    <Compile Include="GraphicsPipeline\Lights\GloblaLight.cs" />
+    <Compile Include="GraphicsPipeline\Lights\GlobalLight.cs" />
     <Compile Include="GraphicsPipeline\Lights\Light.cs" />
     <Compile Include="GraphicsPipeline\Lights\LightList.cs" />
     <Compile Include="GraphicsPipeline\Lights\ReflectorLight.cs" />
