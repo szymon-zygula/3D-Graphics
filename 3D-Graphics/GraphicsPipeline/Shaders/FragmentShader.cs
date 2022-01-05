@@ -11,6 +11,17 @@ namespace _3D_Graphics {
         Vec3 Shade(Triangle triangle, Vec3 bary);
     }
 
+    public class WrapperFragmentShader : IFragmentShader {
+        public IFragmentShader InnerShader { get; set; }
+        public WrapperFragmentShader(IFragmentShader innerShader) {
+            InnerShader = innerShader;
+        }
+
+        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+            return InnerShader.Shade(triangle, bary);
+        }
+    }
+
     public class FlatFragmentShader : IFragmentShader {
         readonly Vec3 Color;
 
