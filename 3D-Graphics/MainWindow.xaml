@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_3D_Graphics"
         mc:Ignorable="d"
-        Title="MainWindow" Height="799" Width="1398">
+        Title="MainWindow" Height="799" Width="1680">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80*"/>
+            <ColumnDefinition Width="20*"/>
+        </Grid.ColumnDefinitions>
         <Image
             Name="ImageCanvas"
             Grid.Column="0"
@@ -14,5 +18,85 @@
             Width="1280"
             Height="720"
         />
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="170"/>
+                <RowDefinition Height="170"/>
+            </Grid.RowDefinitions>
+            <GroupBox
+                Header="Shading model"
+                Grid.Row="0"
+            >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
+                    <RadioButton
+                        Name="FlatShadeRadioButton"
+                        GroupName="ShadingRadioGroup"
+                        Content="Flat shading"
+                        Margin="10"
+                        Grid.Row="0"
+                        IsChecked="True"
+                        Checked="FlatShadeRadioButton_Checked"
+                    />
+                    <RadioButton
+                        Name="GouraudShadeRadioButton"
+                        GroupName="ShadingRadioGroup"
+                        Content="Gouraud shading"
+                        Margin="10"
+                        Grid.Row="1"
+                        Checked="GouraudShadeRadioButton_Checked"
+                    />
+                    <RadioButton
+                        Name="PhongShadeRadioButton"
+                        GroupName="ShadingRadioGroup"
+                        Content="Phong shading"
+                        Margin="10"
+                        Grid.Row="2"
+                        Checked="PhongShadeRadioButton_Checked"
+                    />
+                </Grid>
+            </GroupBox>
+            <GroupBox
+                Header="Camera"
+                Grid.Row="1"
+            >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
+                    <RadioButton
+                        Name="StaticCameraRadioButton"
+                        GroupName="CameraRadioGroup"
+                        Content="Static camera"
+                        Margin="10"
+                        Grid.Row="0"
+                        IsChecked="True"
+                        Checked="StaticCameraRadioButton_Checked"
+                    />
+                    <RadioButton
+                        Name="StaticFollowingCameraRadioButton"
+                        GroupName="CameraRadioGroup"
+                        Content="Following camera"
+                        Margin="10"
+                        Grid.Row="1"
+                        Checked="StaticFollowingCameraRadioButton_Checked"
+                    />
+                    <RadioButton
+                        Name="MovingFollowingCameraRadioButton"
+                        GroupName="CameraRadioGroup"
+                        Content="Moving camera"
+                        Margin="10"
+                        Grid.Row="2"
+                        Checked="MovingFollowingCameraRadioButton_Checked"
+                    />
+                </Grid>
+            </GroupBox>
+        </Grid>
     </Grid>
 </Window>

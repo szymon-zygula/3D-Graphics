@@ -108,5 +108,29 @@ namespace _3D_Graphics {
                 sw.Start();
             }
         }
+
+        private void FlatShadeRadioButton_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void GouraudShadeRadioButton_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void PhongShadeRadioButton_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void StaticCameraRadioButton_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void StaticFollowingCameraRadioButton_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void MovingFollowingCameraRadioButton_Checked(object sender, RoutedEventArgs e) {
+
+        }
     }
 }
