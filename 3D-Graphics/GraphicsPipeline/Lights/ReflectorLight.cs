@@ -7,8 +7,16 @@ using System.Threading.Tasks;
 namespace _3D_Graphics {
     public class ReflectorLight : Light {
         public Vec3 Position;
-        public Vec3 Direction;
         public double ViewAngle;
+        private Vec3 _Direction;
+        public Vec3 Direction {
+            get {
+                return _Direction;
+            }
+            set {
+                _Direction = value.Normalize();
+            }
+        }
 
         public ReflectorLight(Vec3 position, Vec3 direction, double viewAngle, Vec3 color) : base(color) {
             Position = position;
@@ -17,7 +25,13 @@ namespace _3D_Graphics {
         }
 
         public override Vec3 GetDirectionTo(Vec3 point) {
-            return (point - Direction).Normalize();
+            Vec3 toPoint = (point - Position).Normalize();
+
+            if(Math.Acos(Vec3.DotProduct(toPoint, Direction)) <= 0.5 * ViewAngle) {
+                return toPoint;
+            }
+
+            return new Vec3(0.0, 0.0, 0.0);
         }
     }
 }

@@ -19,12 +19,12 @@ namespace _3D_Graphics {
 
             for (int i = 0; i < scene.Entities.Length; ++i) {
                 for (int j = 0; j < scene.Entities[i].Triangles.Length; ++j) {
-                    FillTriangle(texture, vertexShader.Shade(scene.Entities[i].Triangles[j]), zBuffer, closePlane);
+                    FillTriangle(texture, vertexShader.Shade(scene.Entities[i].Triangles[j]), scene.Entities[i].Triangles[j], zBuffer, closePlane);
                 }
             }
         }
 
-        private static void DrawScanline(Texture plane, int xmin, int xmax, int y, Triangle triangle, double[,] zBuffer, double closePlane) {
+        private static void DrawScanline(Texture plane, int xmin, int xmax, int y, Triangle triangle, Triangle unshaded, double[,] zBuffer, double closePlane) {
             if (y < 0 || y >= plane.Height) {
                 return;
             }
@@ -35,7 +35,7 @@ namespace _3D_Graphics {
                 Vec3 bary = Barycentric(triangle, x, y);
                 double depth = bary.X * triangle.Vertices[0][2] + bary.Y * triangle.Vertices[1][2] + bary.Z * triangle.Vertices[2][2];
                 if(depth < zBuffer[x, y] && depth > closePlane) {
-                    plane.Pixels[x, y] = triangle.ShadeAt(bary);
+                    plane.Pixels[x, y] = triangle.ShadeAt(bary, unshaded);
                     zBuffer[x, y] = depth;
                 }
             }
@@ -60,7 +60,7 @@ namespace _3D_Graphics {
             return new Vec3(1f - (cross.X + cross.Y) / cross.Z, cross.Y / cross.Z, cross.X / cross.Z);
         }
 
-        public static void FillTriangle(Texture plane, Triangle triangle, double[,] zBuffer, double closePlane) {
+        public static void FillTriangle(Texture plane, Triangle triangle, Triangle unshaded, double[,] zBuffer, double closePlane) {
             if(!triangle.CorrectWinding() || !triangle.WithinVisibleWindow(plane.Width, plane.Height, closePlane)) {
                 return;
             }
@@ -82,10 +82,10 @@ namespace _3D_Graphics {
                 }
 
                 if (xmin > xmax) {
-                    DrawScanline(plane, (int)Math.Round(xmax), (int)Math.Round(xmin), y, triangle, zBuffer, closePlane);
+                    DrawScanline(plane, (int)Math.Round(xmax), (int)Math.Round(xmin), y, triangle, unshaded, zBuffer, closePlane);
                 }
                 else {
-                    DrawScanline(plane, (int)Math.Round(xmin), (int)Math.Round(xmax), y, triangle, zBuffer, closePlane);
+                    DrawScanline(plane, (int)Math.Round(xmin), (int)Math.Round(xmax), y, triangle, unshaded, zBuffer, closePlane);
                 }
 
                 xmin += diff1;

@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace _3D_Graphics {
     public class GlobalLight : Light {
-        public Vec3 Direction;
+        private Vec3 _Direction;
+        public Vec3 Direction {
+            get {
+                return _Direction;
+            }
+            set {
+                _Direction = value.Normalize();
+            }
+        }
 
         public GlobalLight(Vec3 direction, Vec3 color) : base(color) {
             Direction = direction;

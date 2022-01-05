@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace _3D_Graphics {
     public interface IFragmentShader {
-        Vec3 Shade(Triangle triangle, Vec3 bary);
+        Vec3 Shade(Triangle triangle, Vec3 bary, Triangle unshaded);
     }
 
     public class WrapperFragmentShader : IFragmentShader {
@@ -17,8 +17,8 @@ namespace _3D_Graphics {
             InnerShader = innerShader;
         }
 
-        public Vec3 Shade(Triangle triangle, Vec3 bary) {
-            return InnerShader.Shade(triangle, bary);
+        public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle unshaded) {
+            return InnerShader.Shade(triangle, bary, unshaded);
         }
     }
 
@@ -37,7 +37,7 @@ namespace _3D_Graphics {
             Color = color;
         }
 
-        public Vec3 Shade(Triangle triangle, Vec3 _bary) {
+        public Vec3 Shade(Triangle _triangle, Vec3 _bary, Triangle _unshaded) {
             return Color;
         }
     }
@@ -53,7 +53,7 @@ namespace _3D_Graphics {
             Color3 = color3;
         }
 
-        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+        public Vec3 Shade(Triangle _triangle, Vec3 bary, Triangle _unshaded) {
             return Color1 * bary.X + Color2 * bary.Y + Color3 * bary.Z;
         }
     }
@@ -65,7 +65,7 @@ namespace _3D_Graphics {
             Texture = texture;
         }
 
-        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+        public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle _unshaded) {
             Vec2 uv =
                 triangle.TextureCoords[0] * bary.X +
                 triangle.TextureCoords[1] * bary.Y +
@@ -86,16 +86,16 @@ namespace _3D_Graphics {
             Lights = lightList;
         }
 
-        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+        public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle unshaded) {
             Vector<double> normal =
-                triangle.Normals[0] * bary.X +
-                triangle.Normals[1] * bary.Y +
-                triangle.Normals[2] * bary.Z;
+                unshaded.Normals[0] * bary.X +
+                unshaded.Normals[1] * bary.Y +
+                unshaded.Normals[2] * bary.Z;
 
             Vec3 point = new Vec3(
-                triangle.Vertices[0] * bary.X +
-                triangle.Vertices[1] * bary.Y +
-                triangle.Vertices[2] * bary.Z);
+                unshaded.Vertices[0] * bary.X +
+                unshaded.Vertices[1] * bary.Y +
+                unshaded.Vertices[2] * bary.Z);
 
             Vec3 color = new Vec3(0.0, 0.0, 0.0);
             foreach(Light light in Lights.Lights) {
@@ -103,7 +103,7 @@ namespace _3D_Graphics {
                 if (intensity <= 0) continue;
                 color += light.Color * intensity;
             }
-            return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary));
+            return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary, unshaded));
         }
     }
 
@@ -116,16 +116,16 @@ namespace _3D_Graphics {
             Lights = lights;
         }
 
-        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+        public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle unshaded) {
             Vector<double> normal = (
-                triangle.Normals[0] +
-                triangle.Normals[1] +
-                triangle.Normals[2]).Normalize(2);
+                unshaded.Normals[0] +
+                unshaded.Normals[1] +
+                unshaded.Normals[2]).Normalize(2);
 
             Vec3 point = new Vec3(
-                triangle.Vertices[0] +
-                triangle.Vertices[1] +
-                triangle.Vertices[2]
+                unshaded.Vertices[0] +
+                unshaded.Vertices[1] +
+                unshaded.Vertices[2]
             ) / 3.0;
 
             Vec3 color = new Vec3(0.0, 0.0, 0.0);
@@ -134,7 +134,7 @@ namespace _3D_Graphics {
                 if (intensity <= 0) continue;
                 color += light.Color * intensity;
             }
-            return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary));
+            return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary, unshaded));
         }
     }
 
@@ -151,7 +151,7 @@ namespace _3D_Graphics {
             ClearDistance = clearDistance;
         }
 
-        public Vec3 Shade(Triangle triangle, Vec3 bary) {
+        public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle _unshaded) {
             Vector<double> interpol =
                 triangle.Vertices[0] * bary.X +
                 triangle.Vertices[1] * bary.Y +
@@ -161,12 +161,12 @@ namespace _3D_Graphics {
                 return Color;
             }
             else if (interpol[2] <= ClearDistance) {
-                return InnerShader.Shade(triangle, bary);
+                return InnerShader.Shade(triangle, bary, _unshaded);
             }
 
             double fc = (OpaqueDistance - interpol[2]) / (OpaqueDistance - ClearDistance);
 
-            return fc * InnerShader.Shade(triangle, bary) + (1.0 - fc) * Color;
+            return fc * InnerShader.Shade(triangle, bary, _unshaded) + (1.0 - fc) * Color;
         }
     }
 }

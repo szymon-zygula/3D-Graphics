@@ -15,8 +15,8 @@ namespace _3D_Graphics {
             FragmentShader = fragmentShader;
         }
 
-        public Vec3 ShadeAt(Vec3 bary) {
-            return FragmentShader.Shade(this, bary);
+        public Vec3 ShadeAt(Vec3 bary, Triangle unshaded) {
+            return FragmentShader.Shade(this, bary, unshaded);
         }
 
         public bool CorrectWinding() {

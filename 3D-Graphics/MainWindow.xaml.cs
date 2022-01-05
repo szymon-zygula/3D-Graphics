@@ -38,8 +38,8 @@ namespace _3D_Graphics {
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
             Lights = new LightList();
-            Lights.Lights.Add(new GlobalLight(new Vec3(0.0, -1.0, 0.0), new Vec3(5.0, 0.0, 0.0)));
-            Lights.Lights.Add(new GlobalLight(new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0)));
+            Lights.Lights.Add(new GlobalLight(new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 0.0)));
+            Lights.Lights.Add(new ReflectorLight(new Vec3(0.0, 0.0, -2.0), new Vec3(0.0, 0.0, 1.0), Math.PI / 10.0, new Vec3(0.0, 0.0, 3.0)));
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[2];
@@ -63,7 +63,7 @@ namespace _3D_Graphics {
                 ClosePlane = 0.5,
                 FarPlane = 0.95,
                 ObservedPoint = new Vec3(0.0, 0.0, 0.0),
-                Position = new Vec3(0.0, 0.0, -4.0),
+                Position = new Vec3(-3.0, -0.0, -1.0),
                 Up = new Vec3(0.0, 1.0, 0.0)
             };
             MainCamera.UpdateProjectionMatrix((double)DrawingPlane.Width / (double)DrawingPlane.Height);
@@ -85,9 +85,9 @@ namespace _3D_Graphics {
             MainCamera.Position.Z = -3.3;
             MainCamera.UpdateViewMatrix();
 
-            SomeLightDirection.X = Math.Cos(10 * a + 0.3);
-            SomeLightDirection.Z = Math.Sin(10 * a + 0.3);
-            (Lights.Lights[1] as GlobalLight).Direction = SomeLightDirection;
+            SomeLightDirection.X = Math.Cos(a + 0.3);
+            SomeLightDirection.Z = Math.Sin(a + 0.3);
+            (Lights.Lights[1] as ReflectorLight).Direction = SomeLightDirection;
 
             Matrix<double> rot = CreateMatrix.DenseOfArray(new double[4, 4] {
                 { 1, 0, 0, 0 },
