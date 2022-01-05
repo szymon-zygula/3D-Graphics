@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace _3D_Graphics {
+﻿namespace _3D_Graphics {
     public class GlobalLight : Light {
         private Vec3 _Direction;
         public Vec3 Direction {
