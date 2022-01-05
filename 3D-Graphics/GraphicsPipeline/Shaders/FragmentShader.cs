@@ -169,4 +169,60 @@ namespace _3D_Graphics {
             return fc * InnerShader.Shade(triangle, bary, _unshaded) + (1.0 - fc) * Color;
         }
     }
+
+    public class PhongFragmentShaderDecorator : IFragmentShader {
+        IFragmentShader InnerShader;
+        public LightList Lights;
+        public Vec3 AmbientLight;
+        public double SpecularComponent;
+        public double DiffuseComponent;
+        public double ShininessExponent;
+        public Camera Camera;
+
+        public PhongFragmentShaderDecorator(IFragmentShader innerShader, LightList lightList, Vec3 ambientLight, double specularComponent, double diffuseComponent, double shininessExponent, Camera camera) {
+            InnerShader = innerShader;
+            Lights = lightList;
+            AmbientLight = ambientLight;
+            SpecularComponent = specularComponent;
+            DiffuseComponent = diffuseComponent;
+            ShininessExponent = shininessExponent;
+            Camera = camera;
+        }
+
+        public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle unshaded) {
+            Vec3 normal = new Vec3(
+                unshaded.Normals[0] * bary.X +
+                unshaded.Normals[1] * bary.Y +
+                unshaded.Normals[2] * bary.Z
+            );
+
+            Vec3 point = new Vec3(
+                unshaded.Vertices[0] * bary.X +
+                unshaded.Vertices[1] * bary.Y +
+                unshaded.Vertices[2] * bary.Z
+            );
+
+            Vec3 color = new Vec3(0.0, 0.0, 0.0);
+            foreach(Light light in Lights.Lights) {
+                double diffuse = DiffuseComponent * Vec3.DotProduct(light.GetDirectionFrom(point), normal);
+
+                double specDot = Vec3.DotProduct(light.GetReflectionUnitVector(point, normal), Vec3.UnitDirection(point, Camera.Position));
+                double specular;
+                if (specDot < 0 || double.IsNaN(specDot)) {
+                    specular = 0;
+                }
+                else {
+                    //MessageBox.Show($"dupa ({specDot})");
+                    specular = SpecularComponent * Math.Pow(specDot, ShininessExponent + 0.0001);
+                }
+
+                diffuse = Math.Max(0.0, diffuse);
+                specular = Math.Max(0.0, specular);
+                color += light.Color * (diffuse + specular);
+            }
+
+            color += AmbientLight;
+            return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary, unshaded));
+        }
+    }
 }

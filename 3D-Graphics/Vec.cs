@@ -145,5 +145,12 @@ namespace _3D_Graphics {
         public static Vec3 operator *(Vec3 u, double a) => new Vec3(a * u.X, a * u.Y, a * u.Z);
         public static Vec3 operator *(double a, Vec3 u) => u * a;
         public static Vec3 operator /(Vec3 u, double a) => new Vec3(u.X / a, u.Y / a, u.Z / a);
+        public static bool operator ==(Vec3 u, Vec3 v) => u.X == v.X && u.Y == v.Y && u.Z == v.Z;
+        public static bool operator !=(Vec3 u, Vec3 v) => !(u == v);
+
+
+        public override string ToString() {
+            return $"[{X}, {Y}, {Z}]";
+        }
     }
 }

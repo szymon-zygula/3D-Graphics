@@ -76,9 +76,9 @@ namespace _3D_Graphics {
                     1.0
                 });
                 Triangles[i].Normals[0] = CreateVector.DenseOfArray(new double[] {
-                    vertices[faces[i][2] - 1][0],
-                    vertices[faces[i][2] - 1][1],
-                    -vertices[faces[i][2] - 1][2],
+                    normals[faces[i][2] - 1][0],
+                    normals[faces[i][2] - 1][1],
+                    -normals[faces[i][2] - 1][2],
                     0.0
                 });
                 Triangles[i].TextureCoords[0] = textureCoords[faces[i][1] - 1];
@@ -90,9 +90,9 @@ namespace _3D_Graphics {
                     1.0
                 });
                 Triangles[i].Normals[1] = CreateVector.DenseOfArray(new double[] {
-                    vertices[faces[i][5] - 1][0],
-                    vertices[faces[i][5] - 1][1],
-                    -vertices[faces[i][5] - 1][2],
+                    normals[faces[i][5] - 1][0],
+                    normals[faces[i][5] - 1][1],
+                    -normals[faces[i][5] - 1][2],
                     0.0
                 });
                 Triangles[i].TextureCoords[1] = textureCoords[faces[i][4] - 1];
@@ -104,9 +104,9 @@ namespace _3D_Graphics {
                     1.0
                 });
                 Triangles[i].Normals[2] = CreateVector.DenseOfArray(new double[] {
-                    vertices[faces[i][8] - 1][0],
-                    vertices[faces[i][8] - 1][1],
-                    -vertices[faces[i][8] - 1][2],
+                    normals[faces[i][8] - 1][0],
+                    normals[faces[i][8] - 1][1],
+                    -normals[faces[i][8] - 1][2],
                     0.0
                 });
                 Triangles[i].TextureCoords[2] = textureCoords[faces[i][7] - 1];

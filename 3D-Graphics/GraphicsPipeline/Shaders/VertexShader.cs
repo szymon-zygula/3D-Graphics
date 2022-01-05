@@ -56,8 +56,8 @@ namespace _3D_Graphics {
         }
         private Vector<double> PerspectiveNormal(Vector<double> n) {
             Vector<double> Nc = Camera.InvTransProjectionMatrix * n;
-            Nc[2] = Nc[3];
-            Nc[3] = 0;
+            //Nc[2] = Nc[3];
+            //Nc[3] = 0;
             return Nc;
         }
 
