@@ -100,6 +100,7 @@ namespace _3D_Graphics {
             Vec3 color = new Vec3(0.0, 0.0, 0.0);
             foreach(Light light in Lights.Lights) {
                 double intensity = -normal * light.GetDirectionTo(point).ToHomogenousDirection() * 2.0;
+                if (intensity <= 0) continue;
                 color += light.Color * intensity;
             }
             return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary));
@@ -130,6 +131,7 @@ namespace _3D_Graphics {
             Vec3 color = new Vec3(0.0, 0.0, 0.0);
             foreach(Light light in Lights.Lights) {
                 double intensity = -normal * light.GetDirectionTo(point).ToHomogenousDirection() * 2.0;
+                if (intensity <= 0) continue;
                 color += light.Color * intensity;
             }
             return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary));

@@ -38,8 +38,8 @@ namespace _3D_Graphics {
             ImageCanvas.Source = DrawingPlane.CreateBitmapSource();
 
             Lights = new LightList();
-            Lights.Lights.Add(new GlobalLight(new Vec3(0.0, -1.0, 0.0), new Vec3(0.0, 1.0, 1.0)));
-            Lights.Lights.Add(new GlobalLight(new Vec3(0.0, 0.0, 0.0), new Vec3(1.0, 0.0, 0.0)));
+            Lights.Lights.Add(new GlobalLight(new Vec3(0.0, -1.0, 0.0), new Vec3(5.0, 0.0, 0.0)));
+            Lights.Lights.Add(new GlobalLight(new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0)));
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[2];
