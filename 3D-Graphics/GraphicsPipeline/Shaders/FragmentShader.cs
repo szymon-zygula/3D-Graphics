@@ -207,7 +207,6 @@ namespace _3D_Graphics {
                     specular = 0;
                 }
                 else {
-                    //MessageBox.Show($"dupa ({specDot})");
                     specular = SpecularComponent * Math.Pow(specDot, ShininessExponent + 0.0001);
                 }
 

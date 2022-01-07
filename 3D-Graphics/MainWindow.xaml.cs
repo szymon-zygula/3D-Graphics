@@ -33,11 +33,23 @@ namespace _3D_Graphics {
         Vec3 CleanColor = new Vec3(0.0, 0.0, 0.0);
 
         Entity Body;
-        IFragmentShader BodyShader;
+        IFragmentShader ConstBodyShader;
+        IFragmentShader PhongBodyShader;
+        IFragmentShader GouraudBodyShader;
+        IFragmentShader FlatBodyShader;
+        WrapperFragmentShader BodyShader;
         Entity Ball;
-        IFragmentShader BallShader;
+        IFragmentShader ConstBallShader;
+        IFragmentShader PhongBallShader;
+        IFragmentShader GouraudBallShader;
+        IFragmentShader FlatBallShader;
+        WrapperFragmentShader BallShader;
         Entity Diablo;
-        IFragmentShader DiabloShader;
+        IFragmentShader ConstDiabloShader;
+        IFragmentShader PhongDiabloShader;
+        IFragmentShader GouraudDiabloShader;
+        IFragmentShader FlatDiabloShader;
+        WrapperFragmentShader DiabloShader;
 
         Vec3 AmbientLight = new Vec3(0.5, 0.5, 0.5);
         ReflectorLight StaticReflector;
@@ -104,13 +116,15 @@ namespace _3D_Graphics {
         }
 
         private void InitBody() {
-            BodyShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(BODY_TEXTURE)));
-
-            IFragmentShader currentBodyShader = new PhongFragmentShaderDecorator(BodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera);
+            ConstBodyShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(BODY_TEXTURE)));
+            PhongBodyShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera));
+            GouraudBodyShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBodyShader, Lights));
+            FlatBodyShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBodyShader, Lights));
+            BodyShader = new WrapperFragmentShader(PhongBodyShader);
 
             Body = new Entity(
                 BODY_MODEL,
-                ApplyFog(currentBodyShader)
+                BodyShader
             );
             Body.Transform(MatrixUtils.TranslateMatrix(new Vec3(0.0, 0.0, -2.0)));
         }
@@ -120,24 +134,28 @@ namespace _3D_Graphics {
         }
 
         private void InitDiablo() {
-            DiabloShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(DIABLO_TEXTURE)));
-
-            IFragmentShader currentDiabloShader = new PhongFragmentShaderDecorator(DiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera);
+            ConstDiabloShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(DIABLO_TEXTURE)));
+            PhongDiabloShader = ApplyFog(new PhongFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera));
+            GouraudDiabloShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstDiabloShader, Lights));
+            FlatDiabloShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstDiabloShader, Lights));
+            DiabloShader = new WrapperFragmentShader(PhongDiabloShader);
 
             Diablo = new Entity(
                 DIABLO_MODEL,
-                ApplyFog(currentDiabloShader)
+                DiabloShader
             );
         }
 
         private void InitBall() {
-            BallShader = new FlatFragmentShader(new Vec3(0.5, 0.3, 0.7));
-
-            IFragmentShader currentBallShader = new PhongFragmentShaderDecorator(BallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera);
+            ConstBallShader = new FlatFragmentShader(new Vec3(0.5, 0.3, 0.7));
+            PhongBallShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
+            GouraudBallShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBallShader, Lights));
+            FlatBallShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBallShader, Lights));
+            BallShader = new WrapperFragmentShader(PhongBallShader);
 
             Ball = Entity.CreateSphere(
                 1.2, 50, 50,
-                () => ApplyFog(currentBallShader)
+                () => BallShader
             );
         }
 
@@ -185,6 +203,10 @@ namespace _3D_Graphics {
 
             StaticFollowerCamera.ObservedPoint = position;
             StaticFollowerCamera.UpdateViewMatrix();
+
+            DynamicFollowerCamera.Position = 2.5 * position + new Vec3(0.0, 5.0, 0.0);
+            DynamicFollowerCamera.ObservedPoint = position;
+            DynamicFollowerCamera.UpdateViewMatrix();
         }
 
         private void ApplyTransforms() {
@@ -202,28 +224,70 @@ namespace _3D_Graphics {
             UpdateFPSTitle();
         }
 
-        private void FlatShadeRadioButton_Checked(object sender, RoutedEventArgs e) {
+        private void ResetCamera() {
+            if (CurrentCamera == null) return;
 
+            if(StaticCameraRadioButton.IsChecked.Value) {
+                CurrentCamera = StaticCamera;
+            }
+            else if(StaticFollowingCameraRadioButton.IsChecked.Value) {
+                CurrentCamera = StaticFollowerCamera;
+            }
+            else if(MovingFollowingCameraRadioButton.IsChecked.Value) {
+                CurrentCamera = DynamicFollowerCamera;
+            }
+
+            ResetPhongCameras();
+        }
+
+        private void ResetPhongCameras() {
+            PhongBodyShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera));
+            PhongBallShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
+            PhongDiabloShader = ApplyFog(new PhongFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera));
+            ResetShaders();
+        }
+
+        private void ResetShaders() {
+            if (BallShader == null) return;
+            if(FlatShadeRadioButton.IsChecked.Value) {
+                BallShader.InnerShader = FlatBallShader;
+                DiabloShader.InnerShader = FlatDiabloShader;
+                BodyShader.InnerShader = FlatBodyShader;
+            }
+            else if(GouraudShadeRadioButton.IsChecked.Value) {
+                BallShader.InnerShader = GouraudBallShader;
+                DiabloShader.InnerShader = GouraudDiabloShader;
+                BodyShader.InnerShader = GouraudBodyShader;
+            }
+            else if(PhongShadeRadioButton.IsChecked.Value) {
+                BallShader.InnerShader = PhongBallShader;
+                DiabloShader.InnerShader = PhongDiabloShader;
+                BodyShader.InnerShader = PhongBodyShader;
+            }
+        }
+
+        private void FlatShadeRadioButton_Checked(object sender, RoutedEventArgs e) {
+            ResetShaders();
         }
 
         private void GouraudShadeRadioButton_Checked(object sender, RoutedEventArgs e) {
-
+            ResetShaders();
         }
 
         private void PhongShadeRadioButton_Checked(object sender, RoutedEventArgs e) {
-
+            ResetShaders();
         }
 
         private void StaticCameraRadioButton_Checked(object sender, RoutedEventArgs e) {
-
+            ResetCamera();
         }
 
         private void StaticFollowingCameraRadioButton_Checked(object sender, RoutedEventArgs e) {
-
+            ResetCamera();
         }
 
         private void MovingFollowingCameraRadioButton_Checked(object sender, RoutedEventArgs e) {
-
+            ResetCamera();
         }
     }
 }

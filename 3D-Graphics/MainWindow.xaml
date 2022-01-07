@@ -39,7 +39,6 @@
                         Content="Flat shading"
                         Margin="10"
                         Grid.Row="0"
-                        IsChecked="True"
                         Checked="FlatShadeRadioButton_Checked"
                     />
                     <RadioButton
@@ -56,6 +55,7 @@
                         Content="Phong shading"
                         Margin="10"
                         Grid.Row="2"
+                        IsChecked="True"
                         Checked="PhongShadeRadioButton_Checked"
                     />
                 </Grid>
