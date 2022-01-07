@@ -27,7 +27,7 @@ namespace _3D_Graphics {
         Camera StaticCamera;
         Camera StaticFollowerCamera;
         Camera DynamicFollowerCamera;
-        Vec3 StaticCameraPosition = new Vec3(3.0, 3.0, -3.0);
+        Vec3 StaticCameraPosition = new Vec3(5.0, 5.0, -5.0);
 
         LightList Lights;
         Vec3 CleanColor = new Vec3(0.0, 0.0, 0.0);
@@ -43,8 +43,8 @@ namespace _3D_Graphics {
         ReflectorLight StaticReflector;
         ReflectorLight DynamicReflector;
 
-        double FogFar = 5.0;
-        double FogClose = 1.0;
+        double FogFar = 3.0;
+        double FogClose = 2.7;
 
         private void InitDrawingSpace() {
             DrawingPlane = new Texture((int)ImageCanvas.Width, (int)ImageCanvas.Height);
@@ -95,14 +95,24 @@ namespace _3D_Graphics {
         }
 
         private void InitLights() {
-            DynamicReflector = new ReflectorLight(new Vec3(0.0, 0.0, -2.0), new Vec3(0.0, 0.0, 1.0), Math.PI / 30.0, new Vec3(10.0, 10.0, 2.0));
+            DynamicReflector = new ReflectorLight(new Vec3(0.0, 0.0, -2.0), new Vec3(0.0, 0.0, 1.0), Math.PI * 0.15, new Vec3(10.0, 10.0, 2.0));
+            StaticReflector = new ReflectorLight(new Vec3(4.0, 0.0, 0.0), new Vec3(-1.0, 0.0, 0.0), Math.PI * 0.5, new Vec3(3.0, 3.0, 3.0));
 
             Lights = new LightList();
             Lights.Lights.Add(DynamicReflector);
+            Lights.Lights.Add(StaticReflector);
         }
 
         private void InitBody() {
+            BodyShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(BODY_TEXTURE)));
 
+            IFragmentShader currentBodyShader = new PhongFragmentShaderDecorator(BodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera);
+
+            Body = new Entity(
+                BODY_MODEL,
+                ApplyFog(currentBodyShader)
+            );
+            Body.Transform(MatrixUtils.TranslateMatrix(new Vec3(0.0, 0.0, -2.0)));
         }
 
         private IFragmentShader ApplyFog(IFragmentShader shader) {
@@ -112,7 +122,7 @@ namespace _3D_Graphics {
         private void InitDiablo() {
             DiabloShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(DIABLO_TEXTURE)));
 
-            IFragmentShader currentDiabloShader = new PhongFragmentShaderDecorator(DiabloShader, Lights, AmbientLight, 3.4, 0.6, 30.0, CurrentCamera);
+            IFragmentShader currentDiabloShader = new PhongFragmentShaderDecorator(DiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera);
 
             Diablo = new Entity(
                 DIABLO_MODEL,
@@ -126,10 +136,9 @@ namespace _3D_Graphics {
             IFragmentShader currentBallShader = new PhongFragmentShaderDecorator(BallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera);
 
             Ball = Entity.CreateSphere(
-                0.5, 50, 50,
+                1.2, 50, 50,
                 () => ApplyFog(currentBallShader)
             );
-            Ball.Transform(MatrixUtils.TranslateMatrix(new Vec3(1.5, 0.0, 0.0)));
         }
 
         private void InitScene() {
@@ -139,7 +148,7 @@ namespace _3D_Graphics {
 
             MainScene = new Scene();
             MainScene.Entities = new Entity[] {
-                Ball, Diablo
+                Ball, Diablo, Body
             };
         }
 
@@ -159,7 +168,7 @@ namespace _3D_Graphics {
         }
 
         private void MoveDiablo() {
-            double t = TimeMeasure * 200;
+            double t = TimeMeasure * 400;
             Matrix<double> rotation = CreateMatrix.DenseOfArray(new double[4, 4] {
                 { Math.Cos(t), 0, -Math.Sin(t), 0 },
                 { 0, 1, 0, 0 },
@@ -167,9 +176,15 @@ namespace _3D_Graphics {
                 { 0, 0, 0, 1 }
             });
 
-            Matrix<double> translation = MatrixUtils.TranslateMatrix(2.0 * new Vec3(Math.Cos(t / 4.0), 0.0, 2.0 * Math.Sin(t / 4.0)));
-
+            Vec3 position = 2.0 * new Vec3(Math.Cos(t / 8.0), 0.0, 2.0 * Math.Sin(t / 8.0));
+            Matrix<double> translation = MatrixUtils.TranslateMatrix(position);
             Diablo.LocalTransform = new TransformVertexShader(translation * rotation);
+
+            DynamicReflector.Position = position;
+            DynamicReflector.Direction = new Vec3(Math.Sin(t), 0.0, -Math.Cos(t));
+
+            StaticFollowerCamera.ObservedPoint = position;
+            StaticFollowerCamera.UpdateViewMatrix();
         }
 
         private void ApplyTransforms() {

@@ -23,6 +23,7 @@ namespace _3D_Graphics {
 
         public Triangle Shade(Triangle triangle) {
             Triangle transformedTriangle = new Triangle(triangle.FragmentShader);
+            transformedTriangle.TextureCoords = triangle.TextureCoords;
 
             transformedTriangle.Vertices[0] = Transform * triangle.Vertices[0];
             transformedTriangle.Vertices[1] = Transform * triangle.Vertices[1];
