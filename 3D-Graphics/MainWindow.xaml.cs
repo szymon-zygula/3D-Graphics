@@ -9,14 +9,15 @@ namespace _3D_Graphics {
         double TimeMeasure = 0.0;
         const double TIME_DELTA = 0.001;
 
-        const string FLOOR_MODEL = "Resources\\floor.obj";
-        const string FLOOR_TEXTURE = "Resources\\floor_diffuse.png";
         const string BODY_MODEL = "Resources\\body.obj";
         const string BODY_TEXTURE = "Resources\\body_diffuse.png";
+        const string BODY_NORMALS = "Resources\\body_normals.png";
         const string HEAD_MODEL = "Resources\\african_head.obj";
         const string HEAD_TEXTURE = "Resources\\african_head_diffuse.png";
+        const string HEAD_NORMALS = "Resources\\african_head_normals.png";
         const string DIABLO_MODEL = "Resources\\diablo.obj";
         const string DIABLO_TEXTURE = "Resources\\diablo_diffuse.png";
+        const string DIABLO_NORMALS = "Resources\\diablo_normals.png";
 
         Stopwatch FPSStopWatch;
 
@@ -38,6 +39,7 @@ namespace _3D_Graphics {
         IFragmentShader GouraudBodyShader;
         IFragmentShader FlatBodyShader;
         WrapperFragmentShader BodyShader;
+        Texture BodyNormals;
         Entity Ball;
         IFragmentShader ConstBallShader;
         IFragmentShader PhongBallShader;
@@ -50,6 +52,7 @@ namespace _3D_Graphics {
         IFragmentShader GouraudDiabloShader;
         IFragmentShader FlatDiabloShader;
         WrapperFragmentShader DiabloShader;
+        Texture DiabloNormals;
 
         Vec3 AmbientLight = new Vec3(0.5, 0.5, 0.5);
         ReflectorLight StaticReflector;
@@ -116,8 +119,10 @@ namespace _3D_Graphics {
         }
 
         private void InitBody() {
+            BodyNormals = new Texture(new System.Drawing.Bitmap(BODY_NORMALS));
+
             ConstBodyShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(BODY_TEXTURE)));
-            PhongBodyShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera));
+            PhongBodyShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera, BodyNormals));
             GouraudBodyShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBodyShader, Lights));
             FlatBodyShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBodyShader, Lights));
             BodyShader = new WrapperFragmentShader(PhongBodyShader);
@@ -134,8 +139,10 @@ namespace _3D_Graphics {
         }
 
         private void InitDiablo() {
+            DiabloNormals = new Texture(new System.Drawing.Bitmap(DIABLO_NORMALS));
+
             ConstDiabloShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(DIABLO_TEXTURE)));
-            PhongDiabloShader = ApplyFog(new PhongFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera));
+            PhongDiabloShader = ApplyFog(new PhongFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera, DiabloNormals));
             GouraudDiabloShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstDiabloShader, Lights));
             FlatDiabloShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstDiabloShader, Lights));
             DiabloShader = new WrapperFragmentShader(PhongDiabloShader);
@@ -204,7 +211,7 @@ namespace _3D_Graphics {
             StaticFollowerCamera.ObservedPoint = position;
             StaticFollowerCamera.UpdateViewMatrix();
 
-            DynamicFollowerCamera.Position = 2.5 * position + new Vec3(0.0, 5.0, 0.0);
+            DynamicFollowerCamera.Position = 2.5 * position + new Vec3(0.0, 0.0, 0.0);
             DynamicFollowerCamera.ObservedPoint = position;
             DynamicFollowerCamera.UpdateViewMatrix();
         }
@@ -241,9 +248,9 @@ namespace _3D_Graphics {
         }
 
         private void ResetPhongCameras() {
-            PhongBodyShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera));
+            PhongBodyShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera, BodyNormals));
             PhongBallShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
-            PhongDiabloShader = ApplyFog(new PhongFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera));
+            PhongDiabloShader = ApplyFog(new PhongFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera, DiabloNormals));
             ResetShaders();
         }
 

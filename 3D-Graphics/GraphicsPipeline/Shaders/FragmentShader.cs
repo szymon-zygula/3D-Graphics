@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System;
+using System.Windows;
 
 namespace _3D_Graphics {
     public interface IFragmentShader {
@@ -173,8 +174,19 @@ namespace _3D_Graphics {
         public double DiffuseComponent;
         public double ShininessExponent;
         public Camera Camera;
+        public Texture NormalMap;
+        Matrix<double> A;
+        Vector<double> V;
 
-        public PhongFragmentShaderDecorator(IFragmentShader innerShader, LightList lightList, Vec3 ambientLight, double specularComponent, double diffuseComponent, double shininessExponent, Camera camera) {
+        public PhongFragmentShaderDecorator(
+            IFragmentShader innerShader,
+            LightList lightList,
+            Vec3 ambientLight,
+            double specularComponent,
+            double diffuseComponent,
+            double shininessExponent,
+            Camera camera
+        ) {
             InnerShader = innerShader;
             Lights = lightList;
             AmbientLight = ambientLight;
@@ -184,12 +196,61 @@ namespace _3D_Graphics {
             Camera = camera;
         }
 
+        public PhongFragmentShaderDecorator(
+            IFragmentShader innerShader,
+            LightList lightList,
+            Vec3 ambientLight,
+            double specularComponent,
+            double diffuseComponent,
+            double shininessExponent,
+            Camera camera,
+            Texture normalMap
+        ) : this(innerShader, lightList, ambientLight, specularComponent, diffuseComponent, shininessExponent, camera) {
+            NormalMap = normalMap;
+            A = CreateMatrix.Dense<double>(3, 3);
+            V = CreateVector.Dense<double>(3);
+            V[2] = 0.0;
+        }
+
+        private Vec3 Normal(Triangle triangle, Vec3 bary, Triangle unshaded) {
+            Vector<double> normal =
+                    (unshaded.Normals[0] * bary.X +
+                    unshaded.Normals[1] * bary.Y +
+                    unshaded.Normals[2] * bary.Z).SubVector(0, 3);
+
+            if(NormalMap == null) {
+                return new Vec3(normal);
+            }
+
+            Vec2 uv =
+                triangle.TextureCoords[0] * bary.X +
+                triangle.TextureCoords[1] * bary.Y +
+                triangle.TextureCoords[2] * bary.Z;
+
+            int u = (int)MathUtils.Clamp(Math.Round(uv.X * (NormalMap.Width - 1)), 0.0, NormalMap.Width - 1);
+            int v = (int)MathUtils.Clamp(Math.Round((1.0 - uv.Y) * (NormalMap.Height - 1)), 0.0, NormalMap.Height - 1);
+            Vec3 nfm = 2.0 * (NormalMap.Pixels[u, v] - new Vec3(0.5, 0.5, 0.5));
+
+            Vector<double> p0p1 = (unshaded.Vertices[1] - unshaded.Vertices[0]).SubVector(0, 3);
+            Vector<double> p0p2 = (unshaded.Vertices[2] - unshaded.Vertices[0]).SubVector(0, 3);
+
+            A.SetRow(0, p0p1);
+            A.SetRow(1, p0p2);
+            A.SetRow(2, normal);
+            Matrix<double> invA = A.Inverse();
+
+            V[0] = triangle.TextureCoords[1].X - triangle.TextureCoords[0].X;
+            V[1] = triangle.TextureCoords[2].X - triangle.TextureCoords[0].X;
+            Vector<double> i = (invA * V).Normalize(2);
+            V[0] = triangle.TextureCoords[1].Y - triangle.TextureCoords[0].Y;
+            V[1] = triangle.TextureCoords[2].Y - triangle.TextureCoords[0].Y;
+            Vector<double> j = (invA * V).Normalize(2);
+
+            return new Vec3(i * nfm.X + j * nfm.Y + normal * nfm.Z).Normalize();
+        }
+
         public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle unshaded) {
-            Vec3 normal = new Vec3(
-                unshaded.Normals[0] * bary.X +
-                unshaded.Normals[1] * bary.Y +
-                unshaded.Normals[2] * bary.Z
-            );
+            Vec3 normal = Normal(triangle, bary, unshaded);
 
             Vec3 point = new Vec3(
                 unshaded.Vertices[0] * bary.X +

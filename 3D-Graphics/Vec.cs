@@ -36,6 +36,10 @@ namespace _3D_Graphics {
         public static Vec2 operator *(Vec2 u, double a) => new Vec2(a * u.X, a * u.Y);
         public static Vec2 operator *(double a, Vec2 u) => u * a;
         public static Vec2 operator /(Vec2 u, double a) => new Vec2(u.X / a, u.Y / a);
+
+        public override string ToString() {
+            return $"[{X}, {Y}]";
+        }
     }
 
     public struct Vec3 {
