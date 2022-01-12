@@ -77,17 +77,49 @@ namespace _3D_Graphics {
         IFragmentShader InnerShader;
         public LightList Lights;
 
-        public GouraudFragmentShaderDecorator(IFragmentShader innerShader, LightList lightList) {
+        Vec3 AmbientLight;
+        double SpecularComponent;
+        double DiffuseComponent;
+        double ShininessExponent;
+        public Camera Camera;
+
+        public GouraudFragmentShaderDecorator(
+            IFragmentShader innerShader,
+            LightList lightList,
+            Vec3 ambientLight,
+            double specularComponent,
+            double diffuseComponent,
+            double shininessExponent,
+            Camera camera
+        ) {
             InnerShader = innerShader;
             Lights = lightList;
+            AmbientLight = ambientLight;
+            SpecularComponent = specularComponent;
+            DiffuseComponent = diffuseComponent;
+            ShininessExponent = shininessExponent;
+            Camera = camera;
+        }
+
+        private double GetDiffuse(Vec3 normal, Vec3 point, Light light) {
+            return Math.Max(0.0, DiffuseComponent * Vec3.DotProduct(light.GetDirectionFrom(point), normal));
+        }
+
+        private double GetSpecular(Vec3 normal, Vec3 point, Light light) {
+            double specDot = Vec3.DotProduct(light.GetReflectionUnitVector(point, normal), Vec3.UnitDirection(point, Camera.Position));
+            double specular;
+            if (specDot < 0 || double.IsNaN(specDot)) {
+                specular = 0;
+            }
+            else {
+                specular = SpecularComponent * Math.Pow(specDot, ShininessExponent + 0.0001);
+            }
+
+            specular = Math.Max(0.0, specular);
+            return specular;
         }
 
         public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle unshaded) {
-            Vector<double> normal =
-                unshaded.Normals[0] * bary.X +
-                unshaded.Normals[1] * bary.Y +
-                unshaded.Normals[2] * bary.Z;
-
             Vec3 point = new Vec3(
                 unshaded.Vertices[0] * bary.X +
                 unshaded.Vertices[1] * bary.Y +
@@ -95,10 +127,13 @@ namespace _3D_Graphics {
 
             Vec3 color = new Vec3(0.0, 0.0, 0.0);
             foreach(Light light in Lights.Lights) {
-                double intensity = -normal * light.GetDirectionTo(point).ToHomogenousDirection() * 2.0;
-                if (intensity <= 0) continue;
-                color += light.Color * intensity;
+                double c0 = GetDiffuse(new Vec3(unshaded.Normals[0]), point, light) + GetSpecular(new Vec3(unshaded.Normals[0]), point, light);
+                double c1 = GetDiffuse(new Vec3(unshaded.Normals[1]), point, light) + GetSpecular(new Vec3(unshaded.Normals[1]), point, light);
+                double c2 = GetDiffuse(new Vec3(unshaded.Normals[2]), point, light) + GetSpecular(new Vec3(unshaded.Normals[2]), point, light);
+                color += light.Color * (c0 * bary.X + c1 * bary.Y + c2 * bary.Z);
             }
+
+            color += AmbientLight;
             return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary, unshaded));
         }
     }
@@ -107,16 +142,53 @@ namespace _3D_Graphics {
         IFragmentShader InnerShader;
         public LightList Lights;
 
-        public FlatLightFragmentShaderDecorator(IFragmentShader innerShader, LightList lights) {
+        Vec3 AmbientLight;
+        double SpecularComponent;
+        double DiffuseComponent;
+        double ShininessExponent;
+        public Camera Camera;
+
+        public FlatLightFragmentShaderDecorator(
+            IFragmentShader innerShader,
+            LightList lightList,
+            Vec3 ambientLight,
+            double specularComponent,
+            double diffuseComponent,
+            double shininessExponent,
+            Camera camera
+        ) {
             InnerShader = innerShader;
-            Lights = lights;
+            Lights = lightList;
+            AmbientLight = ambientLight;
+            SpecularComponent = specularComponent;
+            DiffuseComponent = diffuseComponent;
+            ShininessExponent = shininessExponent;
+            Camera = camera;
+        }
+
+        private double GetDiffuse(Vec3 normal, Vec3 point, Light light) {
+            return Math.Max(0.0, DiffuseComponent * Vec3.DotProduct(light.GetDirectionFrom(point), normal));
+        }
+
+        private double GetSpecular(Vec3 normal, Vec3 point, Light light) {
+            double specDot = Vec3.DotProduct(light.GetReflectionUnitVector(point, normal), Vec3.UnitDirection(point, Camera.Position));
+            double specular;
+            if (specDot < 0 || double.IsNaN(specDot)) {
+                specular = 0;
+            }
+            else {
+                specular = SpecularComponent * Math.Pow(specDot, ShininessExponent + 0.0001);
+            }
+
+            specular = Math.Max(0.0, specular);
+            return specular;
         }
 
         public Vec3 Shade(Triangle triangle, Vec3 bary, Triangle unshaded) {
-            Vector<double> normal = (
+            Vec3 normal = new Vec3(
                 unshaded.Normals[0] +
                 unshaded.Normals[1] +
-                unshaded.Normals[2]).Normalize(2);
+                unshaded.Normals[2]).Normalize();
 
             Vec3 point = new Vec3(
                 unshaded.Vertices[0] +
@@ -126,10 +198,12 @@ namespace _3D_Graphics {
 
             Vec3 color = new Vec3(0.0, 0.0, 0.0);
             foreach(Light light in Lights.Lights) {
-                double intensity = -normal * light.GetDirectionTo(point).ToHomogenousDirection() * 2.0;
+                double intensity = GetDiffuse(normal, point, light) + GetSpecular(normal, point, light);
                 if (intensity <= 0) continue;
                 color += light.Color * intensity;
             }
+
+            color += AmbientLight;
             return Vec3.CoefficientProduct(color, InnerShader.Shade(triangle, bary, unshaded));
         }
     }

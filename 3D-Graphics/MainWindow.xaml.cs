@@ -123,8 +123,8 @@ namespace _3D_Graphics {
 
             ConstBodyShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(BODY_TEXTURE)));
             PhongBodyShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera, BodyNormals));
-            GouraudBodyShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBodyShader, Lights));
-            FlatBodyShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBodyShader, Lights));
+            GouraudBodyShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera));
+            FlatBodyShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera));
             BodyShader = new WrapperFragmentShader(PhongBodyShader);
 
             Body = new Entity(
@@ -143,8 +143,8 @@ namespace _3D_Graphics {
 
             ConstDiabloShader = new TextureFragmentShader(new Texture(new System.Drawing.Bitmap(DIABLO_TEXTURE)));
             PhongDiabloShader = ApplyFog(new PhongFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera, DiabloNormals));
-            GouraudDiabloShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstDiabloShader, Lights));
-            FlatDiabloShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstDiabloShader, Lights));
+            GouraudDiabloShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera));
+            FlatDiabloShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera));
             DiabloShader = new WrapperFragmentShader(PhongDiabloShader);
 
             Diablo = new Entity(
@@ -156,8 +156,8 @@ namespace _3D_Graphics {
         private void InitBall() {
             ConstBallShader = new FlatFragmentShader(new Vec3(0.5, 0.3, 0.7));
             PhongBallShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
-            GouraudBallShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBallShader, Lights));
-            FlatBallShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBallShader, Lights));
+            GouraudBallShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
+            FlatBallShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
             BallShader = new WrapperFragmentShader(PhongBallShader);
 
             Ball = Entity.CreateSphere(
@@ -244,13 +244,19 @@ namespace _3D_Graphics {
                 CurrentCamera = DynamicFollowerCamera;
             }
 
-            ResetPhongCameras();
+            ResetShaderCameras();
         }
 
-        private void ResetPhongCameras() {
+        private void ResetShaderCameras() {
             PhongBodyShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera, BodyNormals));
             PhongBallShader = ApplyFog(new PhongFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
             PhongDiabloShader = ApplyFog(new PhongFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera, DiabloNormals));
+            GouraudBodyShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera));
+            GouraudBallShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
+            GouraudDiabloShader = ApplyFog(new GouraudFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera));
+            FlatBodyShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBodyShader, Lights, AmbientLight, 0.2, 0.8, 1.0, CurrentCamera));
+            FlatBallShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstBallShader, Lights, AmbientLight, 3.6, 0.45, 75.0, CurrentCamera));
+            FlatDiabloShader = ApplyFog(new FlatLightFragmentShaderDecorator(ConstDiabloShader, Lights, AmbientLight, 0.4, 0.6, 1.0, CurrentCamera));
             ResetShaders();
         }
 

@@ -52,7 +52,7 @@
                     <RadioButton
                         Name="PhongShadeRadioButton"
                         GroupName="ShadingRadioGroup"
-                        Content="Phong shading"
+                        Content="Phong shading + normal mapping"
                         Margin="10"
                         Grid.Row="2"
                         IsChecked="True"
