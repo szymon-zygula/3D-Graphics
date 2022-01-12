@@ -110,8 +110,8 @@ namespace _3D_Graphics {
         }
 
         private void InitLights() {
-            DynamicReflector = new ReflectorLight(new Vec3(0.0, 0.0, -2.0), new Vec3(0.0, 0.0, 1.0), Math.PI * 0.15, new Vec3(10.0, 10.0, 2.0));
-            StaticReflector = new ReflectorLight(new Vec3(4.0, 0.0, 0.0), new Vec3(-1.0, 0.0, 0.0), Math.PI * 0.5, new Vec3(3.0, 3.0, 3.0));
+            DynamicReflector = new ReflectorLight(new Vec3(0.0, 0.0, -2.0), new Vec3(0.0, 0.0, 1.0), Math.PI * 0.15, new Vec3(30.0, 30.0, 0.0));
+            StaticReflector = new ReflectorLight(new Vec3(4.0, 0.0, 0.0), new Vec3(-1.0, 0.0, 0.0), Math.PI * 1.0, new Vec3(10.0, 10.0, 10.0), 0.02);
 
             Lights = new LightList();
             Lights.Lights.Add(DynamicReflector);

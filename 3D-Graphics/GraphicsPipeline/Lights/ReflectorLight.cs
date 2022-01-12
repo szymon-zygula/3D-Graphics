@@ -3,8 +3,10 @@
 namespace _3D_Graphics {
     public class ReflectorLight : Light {
         public Vec3 Position;
-        public double ViewAngle;
+        public double MaxViewAngle;
         private Vec3 _Direction;
+        private double Multiplier;
+
         public Vec3 Direction {
             get {
                 return _Direction;
@@ -14,17 +16,18 @@ namespace _3D_Graphics {
             }
         }
 
-        public ReflectorLight(Vec3 position, Vec3 direction, double viewAngle, Vec3 color) : base(color) {
+        public ReflectorLight(Vec3 position, Vec3 direction, double maxViewAngle, Vec3 color, double multiplier = 1.0) : base(color) {
             Position = position;
             Direction = direction;
-            ViewAngle = viewAngle;
+            MaxViewAngle = maxViewAngle;
+            Multiplier = multiplier;
         }
 
         public override Vec3 GetDirectionTo(Vec3 point) {
             Vec3 toPoint = (point - Position).Normalize();
 
-            if(Math.Acos(Vec3.DotProduct(toPoint, Direction)) <= 0.5 * ViewAngle) {
-                return toPoint;
+            if(Vec3.DotProduct(toPoint, Direction) >= Math.Cos(0.5 * MaxViewAngle)) {
+                return toPoint * Math.Pow(Vec3.DotProduct(toPoint, Direction), 30.0 / MaxViewAngle * Math.PI * Multiplier) * 1.0;
             }
 
             return new Vec3(0.0, 0.0, 0.0);
